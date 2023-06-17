@@ -23,32 +23,33 @@ def extract_features(image, app_configs):
     return dict(clip=clip_result, resnet=resnet_result)
 
 
-def calculate_images_diff(tmp_doc, image_features):
-    distances_list = []
+def calculate_images_diff(image_name, tmp_doc, image_features):
+    distances_dict = {}
     resnet_db = np.array(tmp_doc.get("resnet"))
     resnet_api = image_features.get("resnet")
     if resnet_db is not None and resnet_api is not None:
-        distances_list.append(euclidean(resnet_db[0], resnet_api[0]))
+        distances_dict[image_name + "_resnet"] = euclidean(resnet_db[0], resnet_api[0])
 
     clip_db = np.array(tmp_doc.get("clip"))
     clip_api = image_features.get("clip")
     if clip_db is not None and clip_api is not None:
-        distances_list.append(euclidean(clip_db[0], clip_api[0]))
+        distances_dict[image_name + "_clip"] = euclidean(clip_db[0], clip_api[0])
 
-    return distances_list
+    return distances_dict
 
 
 def calculate_distance(doc, image_features):
-    diff_list = []
+    diff_dict = {}
     i = 1
     while i < len(doc):
-        tmp_doc = doc.get("image" + str(i))
+        image_name = "image" + str(i)
+        tmp_doc = doc.get(image_name)
         if tmp_doc is not None:
-            diff_list.extend(calculate_images_diff(tmp_doc, image_features))
+            diff_dict.update(calculate_images_diff(image_name, tmp_doc, image_features))
             i += 1
         else:
             break
-    return diff_list
+    return diff_dict
 
 
 def find_similarities(image_features):
@@ -59,7 +60,7 @@ def find_similarities(image_features):
     collection = connect_to_collection(uri, database_name, collection_name)
     images_comparison = {}
     for doc in collection.find({}, {"_id": 1, "image1": 1, "image2": 1, "image3": 1, "image4": 1}):
-        images_comparison[doc.get("_id")] = calculate_distance(doc, image_features)
+        images_comparison[str(doc.get("_id"))] = calculate_distance(doc, image_features)
     return images_comparison
 
 
@@ -80,8 +81,23 @@ def find_image_most_similarity(images_similarities):
     return key
 
 
+def save_as_train_data(images_similarities):
+    uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
+    # Database and collection names
+    database_name = "museum_data"
+    collection_name = "train_data"
+    collection = connect_to_collection(uri, database_name, collection_name)
+    collection.insert_one(images_similarities)
+
+
 def handle_request(request, app_configs):
     image = request.files['image']
     image_features = extract_features(image, app_configs)
     images_similarities = find_similarities(image_features)
+    if request.form['class'] is not None:
+        save_as_train_data(images_similarities)
     return 'best image is: ' + str(find_image_most_similarity(images_similarities)), 200
+
+
+def merge_dicts(dict1, dict2):
+    return dict2.update(dict1)
