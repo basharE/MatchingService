@@ -38,7 +38,7 @@ def calculate_images_diff(image_name, tmp_doc, image_features):
     return distances_dict
 
 
-def calculate_distance(doc, image_features):
+def calculate_distance(doc, image_features, class_of_image):
     diff_dict = {}
     i = 1
     while i < len(doc):
@@ -49,10 +49,11 @@ def calculate_distance(doc, image_features):
             i += 1
         else:
             break
+    diff_dict["class_of_image"] = class_of_image
     return diff_dict
 
 
-def find_similarities(image_features):
+def find_similarities(image_features, class_of_image):
     uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
     # Database and collection names
     database_name = "museum_data"
@@ -60,7 +61,10 @@ def find_similarities(image_features):
     collection = connect_to_collection(uri, database_name, collection_name)
     images_comparison = {}
     for doc in collection.find({}, {"_id": 1, "image1": 1, "image2": 1, "image3": 1, "image4": 1}):
-        images_comparison[str(doc.get("_id"))] = calculate_distance(doc, image_features)
+        if class_of_image is not None and class_of_image == str(doc.get("_id")):
+            images_comparison[str(doc.get("_id"))] = calculate_distance(doc, image_features, 1)
+        else:
+            images_comparison[str(doc.get("_id"))] = calculate_distance(doc, image_features, 0)
     return images_comparison
 
 
@@ -92,12 +96,9 @@ def save_as_train_data(images_similarities):
 
 def handle_request(request, app_configs):
     image = request.files['image']
+    class_of_image = request.form['class']
     image_features = extract_features(image, app_configs)
-    images_similarities = find_similarities(image_features)
-    if request.form['class'] is not None:
+    images_similarities = find_similarities(image_features, class_of_image)
+    if class_of_image != 0:
         save_as_train_data(images_similarities)
-    return 'best image is: ' + str(find_image_most_similarity(images_similarities)), 200
-
-
-def merge_dicts(dict1, dict2):
-    return dict2.update(dict1)
+    return 'best ', 200
