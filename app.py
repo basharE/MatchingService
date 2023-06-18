@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from numpy import load
 import tensorflow as tf
 
+from deciding_model import Db_to_df_converter
 from image_find import FrameHandler
 from data_enriching import Handler
 from data_enriching.FeaturesServices import guess_final_place
@@ -24,6 +25,11 @@ def process_image():
 @app.route("/api/image/find", methods=["POST"])
 def find_image():
     return FrameHandler.handle_request(request, app.config['UPLOAD_FOLDER'])
+
+
+@app.route("/api/data/train", methods=["GET"])
+def train_model():
+    return Db_to_df_converter.get_from_mongo_to_dataframe()
 
 
 @app.route("/api/v1/entry", methods=['POST'])
