@@ -1,0 +1,1 @@
+The service will use this directory as temporary memory, each image will be downloaded to this directory, to enable the service use the image in efficient way 
