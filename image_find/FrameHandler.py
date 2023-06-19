@@ -7,6 +7,9 @@ from tensorflow.python.lib.io.file_io import delete_file
 from MongoConnect import connect_to_collection
 from data_enriching.FeaturesExtractionService import run_model
 
+uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
+database_name = "museum_data"
+
 
 def extract_features(image, app_configs):
     # saving image to tmp directory
@@ -25,46 +28,50 @@ def extract_features(image, app_configs):
 
 def calculate_images_diff(image_name, tmp_doc, image_features):
     distances_dict = {}
-    resnet_db = np.array(tmp_doc.get("resnet"))
+
+    resnet_db = tmp_doc.get("resnet")
     resnet_api = image_features.get("resnet")
     if resnet_db is not None and resnet_api is not None:
-        distances_dict[image_name + "_resnet"] = euclidean(resnet_db[0], resnet_api[0])
+        distances_dict[f"{image_name}_resnet"] = euclidean(resnet_db[0], resnet_api[0])
 
-    clip_db = np.array(tmp_doc.get("clip"))
+    clip_db = tmp_doc.get("clip")
     clip_api = image_features.get("clip")
     if clip_db is not None and clip_api is not None:
-        distances_dict[image_name + "_clip"] = euclidean(clip_db[0], clip_api[0])
+        distances_dict[f"{image_name}_clip"] = euclidean(clip_db[0], clip_api[0])
 
     return distances_dict
 
 
 def calculate_distance(doc, image_features, class_of_image):
     diff_dict = {}
-    i = 1
-    while i < len(doc):
+
+    for i in range(1, 5):
         image_name = "image" + str(i)
         tmp_doc = doc.get(image_name)
-        if tmp_doc is not None:
-            diff_dict.update(calculate_images_diff(image_name, tmp_doc, image_features))
-            i += 1
-        else:
+        if tmp_doc is None:
             break
+        diff_dict.update(calculate_images_diff(image_name, tmp_doc, image_features))
+
     diff_dict["class_of_image"] = class_of_image
     return diff_dict
 
 
 def find_similarities(image_features, class_of_image):
-    uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
     # Database and collection names
-    database_name = "museum_data"
     collection_name = "images"
+
+    # Connect to the MongoDB collection
     collection = connect_to_collection(uri, database_name, collection_name)
+
+    # Dictionary to store image comparisons
     images_comparison = {}
+
+    # Iterate over documents in the collection
     for doc in collection.find({}, {"_id": 1, "image1": 1, "image2": 1, "image3": 1, "image4": 1}):
-        if class_of_image is not None and class_of_image == str(doc.get("_id")):
-            images_comparison[str(doc.get("_id"))] = calculate_distance(doc, image_features, 1)
-        else:
-            images_comparison[str(doc.get("_id"))] = calculate_distance(doc, image_features, 0)
+        image_id = str(doc.get("_id"))
+        distance = calculate_distance(doc, image_features, class_of_image == image_id)
+        images_comparison[image_id] = distance
+
     return images_comparison
 
 
@@ -86,9 +93,6 @@ def find_image_most_similarity(images_similarities):
 
 
 def save_as_train_data(images_similarities):
-    uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
-    # Database and collection names
-    database_name = "museum_data"
     collection_name = "train_data"
     collection = connect_to_collection(uri, database_name, collection_name)
     collection.insert_one(images_similarities)
