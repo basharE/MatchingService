@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import xgboost
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
@@ -73,8 +73,8 @@ def train_model():
         f1 = f1_score(actual_classes, predicted_classes, average='weighted')
         print(f"F1 Score of {clf.__class__.__name__} is {f1}")
 
-        cm = confusion_matrix(y_test, y_pred)
-        print(f"Confusion Matrix of {clf.__class__.__name__} is")
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
-        disp.plot()
-        plt.show()
+        # cm = confusion_matrix(y_test, y_pred)
+        # print(f"Confusion Matrix of {clf.__class__.__name__} is")
+        # disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=clf.classes_)
+        # disp.plot()
+        # plt.show()
