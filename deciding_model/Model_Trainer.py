@@ -1,6 +1,5 @@
 import pandas as pd
 # import matplotlib.pyplot as plt
-import xgboost
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
@@ -50,7 +49,6 @@ def train_model():
 
     # Define classifiers
     classifiers = [
-        xgboost.XGBClassifier(),
         svm.SVC(),
         tree.DecisionTreeClassifier(),
         RandomForestClassifier(),
