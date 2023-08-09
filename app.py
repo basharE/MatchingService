@@ -35,6 +35,7 @@ def train_model():
 
 @app.route("/api/healthcheck", methods=["GET"])
 def health_check():
+    logging.info("Server is alive...")
     return 'hello, Im alive', 200
 
 
