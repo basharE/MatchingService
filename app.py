@@ -1,13 +1,20 @@
+import logging
 from flask import Flask, request
 from deciding_model import Model_Trainer
 from image_find import FrameHandler
 from data_enriching import Handler
+
+from waitress import serve
 
 UPLOAD_FOLDER = 'uploads'
 root_dir = 'C:/Users/Bashar/Documents/Thesis/Thesis/classifier_data/data/latest' + str(1) + '/'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Configure logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 @app.route("/api/image/enrich", methods=["POST"])
@@ -26,5 +33,11 @@ def train_model():
     return 'done', 200
 
 
+@app.route("/api/healthcheck", methods=["GET"])
+def health_check():
+    return 'hello, Im alive', 200
+
+
 if __name__ == '__main__':
-    app.run()
+    logging.info("Starting Waitress server...")
+    serve(app, host='0.0.0.0', port=5000)
