@@ -6,7 +6,7 @@ from numpy import linalg as LA
 import numpy as np
 from numpy import asarray
 from keras.applications.resnet import preprocess_input
-from keras.preprocessing.image import image_utils
+from keras import utils
 
 
 def get_pretrained_model(name):
@@ -40,7 +40,7 @@ def get_features_clip(processor_, device_, model_, tmpImg):
 def run_model(model_to_run, image_path):
     feature_list = []
     start_time = time.time()
-    image1 = image_utils.load_img(image_path, target_size=(224, 224))
+    image1 = utils.load_img(image_path, target_size=(224, 224))
     if model_to_run == "resnet":
         transformedImage = asarray(image1)
         # transformedImage = image1.img_to_array(image1)
