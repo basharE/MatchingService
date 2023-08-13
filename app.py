@@ -1,44 +1,50 @@
 import logging
 from flask import Flask, request
-from deciding_model import Model_Trainer
-from image_find import FrameHandler
-from data_enriching import Handler
-
 from waitress import serve
 
-UPLOAD_FOLDER = 'uploads'
-root_dir = 'C:/Users/Bashar/Documents/Thesis/Thesis/classifier_data/data/latest' + str(1) + '/'
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# Configure logging
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from configuration.AppConfig import AppConfig
+from data_enriching import Handler
+from deciding_model import Model_Trainer
+from image_find import FrameHandler
 
 
-@app.route("/api/image/enrich", methods=["POST"])
-def process_image():
-    return Handler.handle_request(request, app.config['UPLOAD_FOLDER'])
+class MyFlaskApp:
+    def __init__(self):
+        self.app = Flask(__name__)
+        self.config = AppConfig('configuration/app.config')
+        self.configure_logging()
+        self.setup_routes()
 
+    def configure_logging(self):
+        app_config = self.config.get_config().get('log')
+        logging.basicConfig(level=app_config.get('level'),
+                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-@app.route("/api/image/find", methods=["POST"])
-def find_image():
-    return FrameHandler.handle_request(request, app.config['UPLOAD_FOLDER'])
+    def setup_routes(self):
+        @self.app.route("/api/image/enrich", methods=["POST"])
+        def process_image():
+            return Handler.handle_request(request, self.config.get_config().get('common').get('upload_folder'))
 
+        @self.app.route("/api/image/find", methods=["POST"])
+        def find_image():
+            return FrameHandler.handle_request(request, self.config.get_config().get('common').get('upload_folder'))
 
-@app.route("/api/data/train", methods=["GET"])
-def train_model():
-    Model_Trainer.train_model()
-    return 'done', 200
+        @self.app.route("/api/data/train", methods=["GET"])
+        def train_model():
+            Model_Trainer.train_model()
+            return 'done', 200
 
+        @self.app.route("/api/healthcheck", methods=["GET"])
+        def health_check():
+            logging.info("Server is alive...")
+            return 'hello, Im alive', 200
 
-@app.route("/api/healthcheck", methods=["GET"])
-def health_check():
-    logging.info("Server is alive...")
-    return 'hello, Im alive', 200
+    def run(self):
+        app_config = self.config.get_config().get('waitress')
+        logging.info("Starting Waitress server...")
+        serve(self.app, host=app_config.get('host'), port=app_config.get('port'))
 
 
 if __name__ == '__main__':
-    logging.info("Starting Waitress server...")
-    serve(app, host='0.0.0.0', port=5000)
+    my_app = MyFlaskApp()
+    my_app.run()
