@@ -7,6 +7,8 @@ import numpy as np
 from numpy import asarray
 from keras.applications.resnet import preprocess_input
 from keras import utils
+import logging
+
 
 
 def get_pretrained_model(name):
@@ -77,8 +79,8 @@ def run_model(model_to_run, image_path):
 
     # Convert list to numpy array
     feature_list = np.array(feature_list)
-    print("\n")
-    print("Type = ", type(feature_list))
-    print("Shape of feature_list = ", feature_list.shape)
-    print("Time taken in sec = ", end_time - start_time)
+    logging.info("Type = %s", type(feature_list))
+    logging.info("Shape of feature_list = %s", feature_list.shape)
+    logging.info("Time taken in sec = %s", end_time - start_time)
+    logging.info("Image location: %s",image_path)
     return feature_list
