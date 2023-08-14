@@ -5,6 +5,7 @@ from os.path import isfile, join
 
 import cv2
 from scipy.spatial.distance import euclidean
+from tensorflow.python.lib.io.file_io import delete_file
 
 from configuration.AppConfig import AppConfig
 from data_enriching.FeaturesExtractionService import run_model
@@ -117,6 +118,7 @@ def prepare_video(video_name):
         logging.info('Starting orchestrate for file: %s', video_name)
         vid_cap = cv2.VideoCapture(get_directory_from_conf() + video_name)
         split_images_stream(vid_cap, video_name)
+        delete_file(get_directory_from_conf() + video_name)
         logging.info('Completed processing prepare_video: %s', video_name)
     else:
         logging.info('No need to process prepare_video: %s, image set already exist', video_name)

@@ -28,8 +28,8 @@ def handle_video_request(request):
         top_images, images_paths = process_video(request)
         chosen_images = [images_paths[index] for index in top_images]
         images_dto = run_models(request, chosen_images)
+        delete_saved_images(images_paths)
         save_to_db(images_dto)
-        delete_saved_images(top_images)
         return saved_images_string(top_images)
     except Exception as e:
         logging.error('Handle video request: ' + str(e))
