@@ -2,11 +2,10 @@ import cv2
 import os
 
 from configuration.ConfigurationService import get_frames_directory_from_conf
-from images_selector.PathUtils import create_path
+from utils.PathUtils import create_path
 import logging
 
-
-
+from utils.Common import remove_extension
 
 
 def extract_frame(vid_cap, sec, count, video_name):
@@ -34,9 +33,3 @@ def split_images_stream(images_stream, video_name):
         sec = round(sec, 2)
 
     logging.info('Completed processing split_images_stream for file: %s', video_name)
-
-
-def remove_extension(filename):
-    if filename.endswith(".mp4"):
-        return filename[:-4]
-    return filename

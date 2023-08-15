@@ -10,7 +10,6 @@ from keras import utils
 import logging
 
 
-
 def get_pretrained_model(name):
     if name == "resnet":
         # High-level tensorflow.keras API to easily use pretrained models
@@ -45,7 +44,6 @@ def run_model(model_to_run, image_path):
     image1 = utils.load_img(image_path, target_size=(224, 224))
     if model_to_run == "resnet":
         transformedImage = asarray(image1)
-        # transformedImage = image1.img_to_array(image1)
         transformedImage = np.expand_dims(transformedImage, axis=0)
         transformedImage = preprocess_input(transformedImage)
 
@@ -82,5 +80,5 @@ def run_model(model_to_run, image_path):
     logging.info("Type = %s", type(feature_list))
     logging.info("Shape of feature_list = %s", feature_list.shape)
     logging.info("Time taken in sec = %s", end_time - start_time)
-    logging.info("Image location: %s",image_path)
+    logging.info("Image location: %s", image_path)
     return feature_list

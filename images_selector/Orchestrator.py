@@ -10,10 +10,12 @@ from tensorflow.python.lib.io.file_io import delete_file
 from configuration.ConfigurationService import get_frames_directory_from_conf, get_directory_from_conf, \
     get_threshold_const_from_conf
 from data_enriching.FeaturesExtractionService import run_model
-from images_selector.PathUtils import create_path
-from images_selector.SortingUtils import alphanum_key
-from images_selector.VideoUtils import split_images_stream
+from utils.PathUtils import create_path
+from utils.SortingUtils import alphanum_key
+from utils.VideoUtils import split_images_stream
 import logging
+
+from utils.Common import remove_extension
 
 
 def count_ones(image_comparison_res):
@@ -115,10 +117,4 @@ def orchestrate(video_name):
     convert_matrix_to_ones_zeros(results_matrix, get_threshold_const_from_conf())
     top_images = get_top_images(results_matrix)
     logging.info('Completed processing orchestrate for file: %s, images: %s', video_name, top_images)
-    return top_images, images_names
-
-
-def remove_extension(filename):
-    if filename.endswith(".mp4"):
-        return filename[:-4]
-    return filename
+    return top_images, images_names, remove_extension(video_name)

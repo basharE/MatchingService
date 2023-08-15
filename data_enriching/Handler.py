@@ -3,13 +3,14 @@ import os
 from tensorflow.python.lib.io.file_io import delete_file
 
 from configuration.ConfigurationService import get_directory_from_conf, get_database_uri_from_conf, \
-    get_database_name_from_conf, get_database_collection_name_from_conf
+    get_database_name_from_conf, get_database_collection_name_from_conf, get_frames_directory_from_conf
 from data_enriching.FeaturesExtractionService import run_model
 from MongoConnect import connect_to_collection
 import logging
 
 from images_selector.Orchestrator import orchestrate
-from images_selector.PathUtils import create_path
+from utils.PathUtils import create_path
+from utils.Common import remove_extension
 
 
 def handle_image_request(request, app_configs):
@@ -20,16 +21,17 @@ def handle_image_request(request, app_configs):
         delete_saved_images(images_list)
         return saved_images_string(images_list)
     except Exception as e:
-        logging.error('Failed to upload to ftp: ' + str(e))
-    return "", 500
+        logging.error('Failed to handle image: ' + str(e))
+    return "Failed to handle image", 500
 
 
 def handle_video_request(request):
     try:
-        top_images, images_paths = process_video(request)
+        top_images, images_paths, video_name_without_ext = process_video(request)
         chosen_images = [images_paths[index] for index in top_images]
         images_dto = run_models(request, chosen_images)
         delete_saved_images(images_paths)
+        os.rmdir(get_frames_directory_from_conf() + video_name_without_ext)
         save_to_db(images_dto)
         return saved_images_string(chosen_images)
     except Exception as e:
@@ -85,4 +87,4 @@ def delete_saved_images(images_list):
 
 
 def saved_images_string(images_list):
-    return 'Processing video was done, the images were saved to db successfully. Images: %s', images_list
+    return 'Processing video was done, the images were saved to db successfully. Images number: %s', len(images_list)
