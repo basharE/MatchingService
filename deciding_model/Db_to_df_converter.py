@@ -1,14 +1,13 @@
 import pandas as pd
 
 from MongoConnect import connect_to_collection
+from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
+    get_database_train_collection_name_from_conf
 
 
 def get_from_mongo_to_dataframe():
-    uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
-    # Database and collection names
-    database_name = "museum_data"
-    collection_name = "train_data"
-    collection = connect_to_collection(uri, database_name, collection_name)
+    collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
+                                       get_database_train_collection_name_from_conf())
     df = pd.DataFrame()
     for doc in collection.find({}, {"_id": 0}):
         for v in doc.values():

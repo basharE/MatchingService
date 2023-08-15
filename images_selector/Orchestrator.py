@@ -7,29 +7,13 @@ import cv2
 from scipy.spatial.distance import euclidean
 from tensorflow.python.lib.io.file_io import delete_file
 
-from configuration.AppConfig import AppConfig
+from configuration.ConfigurationService import get_frames_directory_from_conf, get_directory_from_conf, \
+    get_threshold_const_from_conf
 from data_enriching.FeaturesExtractionService import run_model
 from images_selector.PathUtils import create_path
 from images_selector.SortingUtils import alphanum_key
 from images_selector.VideoUtils import split_images_stream
 import logging
-
-
-def get_video_conf():
-    conf = AppConfig('configuration/app.config')
-    return conf.get_config().get('video')
-
-
-def get_directory_from_conf():
-    return get_video_conf().get('video_directory')
-
-
-def get_frames_directory_from_conf():
-    return get_video_conf().get('frames_directory')
-
-
-def get_threshold_const_from_conf():
-    return get_video_conf().get('threshold_const')
 
 
 def count_ones(image_comparison_res):

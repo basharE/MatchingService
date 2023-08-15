@@ -5,10 +5,9 @@ from scipy.spatial.distance import euclidean
 from tensorflow.python.lib.io.file_io import delete_file
 
 from MongoConnect import connect_to_collection
+from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
+    get_database_train_collection_name_from_conf
 from data_enriching.FeaturesExtractionService import run_model
-
-uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
-database_name = "museum_data"
 
 
 def extract_features(image, app_configs):
@@ -57,11 +56,9 @@ def calculate_distance(doc, image_features, class_of_image):
 
 
 def find_similarities(image_features, class_of_image):
-    # Database and collection names
-    collection_name = "images"
-
     # Connect to the MongoDB collection
-    collection = connect_to_collection(uri, database_name, collection_name)
+    collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
+                                       get_database_images_collection_name_from_conf())
 
     # Dictionary to store image comparisons
     images_comparison = {}
@@ -93,8 +90,8 @@ def find_image_most_similarity(images_similarities):
 
 
 def save_as_train_data(images_similarities):
-    collection_name = "train_data"
-    collection = connect_to_collection(uri, database_name, collection_name)
+    collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
+                                       get_database_train_collection_name_from_conf())
     collection.insert_one(images_similarities)
 
 

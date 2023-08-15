@@ -1,18 +1,12 @@
 import cv2
 import os
 
-from configuration.AppConfig import AppConfig
+from configuration.ConfigurationService import get_frames_directory_from_conf
 from images_selector.PathUtils import create_path
 import logging
 
 
-def get_video_conf():
-    conf = AppConfig('configuration/app.config')
-    return conf.get_config().get('video')
 
-
-def get_frames_directory_from_conf():
-    return get_video_conf().get('frames_directory')
 
 
 def extract_frame(vid_cap, sec, count, video_name):

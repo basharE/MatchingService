@@ -2,7 +2,8 @@ import os
 
 from tensorflow.python.lib.io.file_io import delete_file
 
-from configuration.AppConfig import AppConfig
+from configuration.ConfigurationService import get_directory_from_conf, get_database_uri_from_conf, \
+    get_database_name_from_conf, get_database_collection_name_from_conf
 from data_enriching.FeaturesExtractionService import run_model
 from MongoConnect import connect_to_collection
 import logging
@@ -36,10 +37,6 @@ def handle_video_request(request):
     return "", 500
 
 
-def get_directory_from_conf():
-    conf = AppConfig('configuration/app.config')
-    return conf.get_config().get('video').get('video_directory')
-
 
 def process_video(request):
     video_directory = get_directory_from_conf()
@@ -64,10 +61,9 @@ def run_models(request, images_list):
 
 
 def save_to_db(image_data):
-    uri = "mongodb+srv://bashar:bashar@mymongo.xwi5zqs.mongodb.net/?retryWrites=true&w=majority"
-    # Database and collection names
-    database_name = "museum_data"
-    collection_name = "images"
+    uri = get_database_uri_from_conf()
+    database_name = get_database_name_from_conf()
+    collection_name = get_database_collection_name_from_conf()
     collection = connect_to_collection(uri, database_name, collection_name)
     collection.insert_one(image_data)
 
