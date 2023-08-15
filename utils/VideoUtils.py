@@ -10,11 +10,11 @@ from utils.Common import remove_extension
 
 def extract_frame(vid_cap, sec, count, video_name):
     vid_cap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
-    hasFrames, image = vid_cap.read()
-    if hasFrames:
+    has_frames, image = vid_cap.read()
+    if has_frames:
         filename = os.path.join(get_frames_directory_from_conf(), video_name, f"image{count}.jpg")
         cv2.imwrite(filename, image)  # save frame as JPG file
-    return hasFrames
+    return has_frames
 
 
 def split_images_stream(images_stream, video_name):
@@ -23,13 +23,13 @@ def split_images_stream(images_stream, video_name):
     video_name_ = remove_extension(video_name)
     create_path(os.path.join(get_frames_directory_from_conf(), video_name_))
 
-    frameRate = 0.5  # it will capture an image every 0.5 seconds
+    frame_rate = 0.5  # it will capture an image every 0.5 seconds
     count = 1
     sec = 0
 
     while extract_frame(images_stream, sec, count, video_name_):
         count += 1
-        sec += frameRate
+        sec += frame_rate
         sec = round(sec, 2)
 
     logging.info('Completed processing split_images_stream for file: %s', video_name)

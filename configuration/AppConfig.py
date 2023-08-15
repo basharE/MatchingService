@@ -8,12 +8,12 @@ class AppConfig:
         self.app_config = self._load_config()
 
     def _load_config(self):
-        app_config = {}
+        app_configs = {}
         for section_name in self.config_parser.sections():
-            app_config[section_name] = {}
+            app_configs[section_name] = {}
             for key, value in self.config_parser.items(section_name):
-                app_config[section_name][key] = value
-        return app_config
+                app_configs[section_name][key] = value
+        return app_configs
 
     def get_config(self):
         return self.app_config

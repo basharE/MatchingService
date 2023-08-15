@@ -26,12 +26,11 @@ def get_pretrained_model(name):
     return model
 
 
-def get_features_clip(processor_, device_, model_, tmpImg):
-    # tmpImg = Image.open(image_path_)
-    image1 = processor_(text=None, images=tmpImg, return_tensors="pt")[
+def get_features_clip(processor_, device_, model_, tmp_img):
+    image1 = processor_(text=None, images=tmp_img, return_tensors="pt")[
         "pixel_values"
     ].to(device_)
-    tmpImg.close()
+    tmp_img.close()
     e = model_.get_image_features(image1)
     e = e.squeeze(0)
     e = e.cpu().detach().numpy()
@@ -43,15 +42,15 @@ def run_model(model_to_run, image_path):
     start_time = time.time()
     image1 = utils.load_img(image_path, target_size=(224, 224))
     if model_to_run == "resnet":
-        transformedImage = asarray(image1)
-        transformedImage = np.expand_dims(transformedImage, axis=0)
-        transformedImage = preprocess_input(transformedImage)
+        transformed_image = asarray(image1)
+        transformed_image = np.expand_dims(transformed_image, axis=0)
+        transformed_image = preprocess_input(transformed_image)
 
         model = get_pretrained_model("resnet")
 
         # Model predictions are feature vectors as the final
         # classification layer is removed
-        feature_list = model.predict(transformedImage)
+        feature_list = model.predict(transformed_image)
 
     elif model_to_run == "clip":
         # if you have CUDA or MPS, set it to the active device like this

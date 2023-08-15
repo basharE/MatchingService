@@ -21,7 +21,6 @@ def extract_features(image, app_configs):
 
     delete_file(image_path)
 
-    # return result
     return dict(clip=clip_result, resnet=resnet_result)
 
 

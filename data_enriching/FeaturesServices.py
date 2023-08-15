@@ -15,8 +15,8 @@ def calculate_similarity(img1_, img2_, algo):
         algorithm = cv2.ORB_create(nfeatures=100)
 
     # Detect key points and compute descriptors
-    kp1, des1 = algorithm.detectAndCompute(img1, None)
-    kp2, des2 = algorithm.detectAndCompute(img2, None)
+    _, des1 = algorithm.detectAndCompute(img1, None)
+    _, des2 = algorithm.detectAndCompute(img2, None)
 
     # Match key points using BFMatcher
     bf = cv2.BFMatcher()
