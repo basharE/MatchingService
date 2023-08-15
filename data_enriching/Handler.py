@@ -10,7 +10,6 @@ import logging
 
 from images_selector.Orchestrator import orchestrate
 from utils.PathUtils import create_path
-from utils.Common import remove_extension
 
 
 def handle_image_request(request, app_configs):
