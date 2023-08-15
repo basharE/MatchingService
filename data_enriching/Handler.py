@@ -31,11 +31,10 @@ def handle_video_request(request):
         images_dto = run_models(request, chosen_images)
         delete_saved_images(images_paths)
         save_to_db(images_dto)
-        return saved_images_string(top_images)
+        return saved_images_string(chosen_images)
     except Exception as e:
         logging.error('Handle video request: ' + str(e))
     return "", 500
-
 
 
 def process_video(request):
@@ -61,11 +60,13 @@ def run_models(request, images_list):
 
 
 def save_to_db(image_data):
+    logging.info('Starting save_to_db')
     uri = get_database_uri_from_conf()
     database_name = get_database_name_from_conf()
     collection_name = get_database_collection_name_from_conf()
     collection = connect_to_collection(uri, database_name, collection_name)
     collection.insert_one(image_data)
+    logging.info('Completed processing save_to_db to collection: %s', collection_name)
 
 
 def save_images_from_request(request, app_configs):
@@ -84,4 +85,4 @@ def delete_saved_images(images_list):
 
 
 def saved_images_string(images_list):
-    return 'The images were saved to db successfully'
+    return 'Processing video was done, the images were saved to db successfully. Images: %s', images_list
