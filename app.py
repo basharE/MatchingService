@@ -3,7 +3,10 @@ from flask import Flask
 from waitress import serve
 
 from configuration.AppConfig import AppConfig
-from controller import Controller
+from controller.DataEnrichmentController import DataEnrichmentController
+from controller.HealthCheckController import HealthCheckController
+from controller.ImageFindController import ImageFindController
+from controller.ModelTrainingController import ModelTrainingController
 
 
 class App:
@@ -11,7 +14,10 @@ class App:
         self.app = Flask(__name__)
         self.config = AppConfig('configuration/app.config')
         self.configure_logging()
-        self.controller = Controller(self.app, self.config)
+        self.data_enrichment_controller = DataEnrichmentController(self.app, self.config)
+        self.image_find_controller = ImageFindController(self.app, self.config)
+        self.model_training_controller = ModelTrainingController(self.app, self.config)
+        self.health_check_controller = HealthCheckController(self.app, self.config)
 
     def configure_logging(self):
         app_config = self.config.get_config().get('log')
