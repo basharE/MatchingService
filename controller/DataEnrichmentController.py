@@ -4,11 +4,16 @@ from flask import request
 
 
 class DataEnrichmentController(BaseController):
-    def setup_routes(self):
-        @self.app.route("/api/image/enrich", methods=["POST"])
-        def process_image():
-            return Handler.handle_image_request(request, self.config.get_config().get('common').get('upload_folder'))
+    ENRICH_ROUTE = "/api/enrich"  # Define the common part of the route
 
-        @self.app.route("/api/video/enrich", methods=["POST"])
+    def setup_routes(self):
+        common_config = self.config.get_config().get('common')
+        upload_folder = common_config.get('upload_folder')
+
+        @self.app.route(f"{self.ENRICH_ROUTE}/image", methods=["POST"])
+        def process_image():
+            return Handler.handle_image_request(request, upload_folder)
+
+        @self.app.route(f"{self.ENRICH_ROUTE}/video", methods=["POST"])
         def process_video():
             return Handler.handle_video_request(request)

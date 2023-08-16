@@ -1,6 +1,3 @@
-from flask import Flask
-
-
 class BaseController:
     def __init__(self, app, config):
         self.app = app
