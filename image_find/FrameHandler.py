@@ -4,7 +4,7 @@ import numpy as np
 from scipy.spatial.distance import euclidean
 from tensorflow.python.lib.io.file_io import delete_file
 
-from MongoConnect import connect_to_collection
+from db.MongoConnect import connect_to_collection
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
     get_database_train_collection_name_from_conf, get_database_images_collection_name_from_conf
 from data_enriching.FeaturesExtractionService import run_model

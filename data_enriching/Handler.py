@@ -5,7 +5,7 @@ from tensorflow.python.lib.io.file_io import delete_file
 from configuration.ConfigurationService import get_directory_from_conf, get_database_uri_from_conf, \
     get_database_name_from_conf, get_database_collection_name_from_conf, get_frames_directory_from_conf
 from data_enriching.FeaturesExtractionService import run_model
-from MongoConnect import connect_to_collection
+from db.MongoConnect import connect_to_collection
 import logging
 
 from images_selector.Orchestrator import orchestrate
@@ -86,4 +86,5 @@ def delete_saved_images(images_list):
 
 
 def saved_images_string(images_list):
-    return 'Processing video was done, the images were saved to db successfully. Images number: %s', len(images_list)
+    return 'Processing video was done, the images were saved to db successfully. Images number: ' + str(
+        len(images_list)), 200

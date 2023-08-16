@@ -1,6 +1,6 @@
 import pandas as pd
 
-from MongoConnect import connect_to_collection
+from db.MongoConnect import connect_to_collection
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
     get_database_train_collection_name_from_conf
 

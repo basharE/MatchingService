@@ -1,48 +1,23 @@
 import logging
-from flask import Flask, request
+from flask import Flask
 from waitress import serve
 
 from configuration.AppConfig import AppConfig
-from data_enriching import Handler
-from deciding_model import Model_Trainer
-from image_find import FrameHandler
+from controller import Controller
 
 
-class MyFlaskApp:
+class App:
     def __init__(self):
         self.app = Flask(__name__)
         self.config = AppConfig('configuration/app.config')
         self.configure_logging()
-        self.setup_routes()
+        self.controller = Controller(self.app, self.config)
 
     def configure_logging(self):
         app_config = self.config.get_config().get('log')
         logging.basicConfig(level=app_config.get('level'),
                             format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d - %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S')
-
-    def setup_routes(self):
-        @self.app.route("/api/image/enrich", methods=["POST"])
-        def process_image():
-            return Handler.handle_image_request(request, self.config.get_config().get('common').get('upload_folder'))
-
-        @self.app.route("/api/video/enrich", methods=["POST"])
-        def process_video():
-            return Handler.handle_video_request(request)
-
-        @self.app.route("/api/image/find", methods=["POST"])
-        def find_image():
-            return FrameHandler.handle_request(request, self.config.get_config().get('common').get('upload_folder'))
-
-        @self.app.route("/api/data/train", methods=["GET"])
-        def train_model():
-            Model_Trainer.train_model()
-            return 'done', 200
-
-        @self.app.route("/api/healthcheck", methods=["GET"])
-        def health_check():
-            logging.info("Server is alive...")
-            return 'hello, Im alive', 200
 
     def run(self):
         app_config = self.config.get_config().get('waitress')
@@ -51,5 +26,5 @@ class MyFlaskApp:
 
 
 if __name__ == '__main__':
-    my_app = MyFlaskApp()
+    my_app = App()
     my_app.run()
