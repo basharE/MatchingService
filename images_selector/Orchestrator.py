@@ -9,7 +9,7 @@ from tensorflow.python.lib.io.file_io import delete_file
 
 from configuration.ConfigurationService import get_frames_directory_from_conf, get_directory_from_conf, \
     get_threshold_const_from_conf
-from data_enriching.FeaturesExtractionService import run_model
+from data_enriching.FeaturesExtractionService import FeatureExtractor
 from utils.PathUtils import create_path
 from utils.SortingUtils import alphanum_key
 from utils.VideoUtils import split_images_stream
@@ -59,7 +59,7 @@ def get_top_images(results_matrix):
     return top_images_with_ones
 
 
-def extract_features(images_location):
+def extract_features(images_location, feature_extractor):
     logging.info('Starting extract_features in location: %s', images_location)
     features_list = list()
     images_names_list = list()
@@ -67,7 +67,7 @@ def extract_features(images_location):
     only_files.sort(key=alphanum_key)
     for x in range(len(only_files)):
         route = images_location + "/" + only_files[x]
-        features_list.append(run_model("clip", route))
+        features_list.append(feature_extractor.run_model("clip", route))
         images_names_list.append(route)
     logging.info('Completed processing extract_features in location: %s', images_location)
     return features_list, images_names_list
@@ -112,7 +112,9 @@ def prepare_video(video_name):
 
 def orchestrate(video_name):
     prepare_video(video_name)
-    features_list, images_names = extract_features(get_frames_directory_from_conf() + remove_extension(video_name))
+    feature_extractor = FeatureExtractor()
+    features_list, images_names = extract_features(get_frames_directory_from_conf() + remove_extension(video_name),
+                                                   feature_extractor)
     results_matrix = build_comparison_matrix(features_list)
     convert_matrix_to_ones_zeros(results_matrix, get_threshold_const_from_conf())
     top_images = get_top_images(results_matrix)

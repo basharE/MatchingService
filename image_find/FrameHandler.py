@@ -7,17 +7,18 @@ from tensorflow.python.lib.io.file_io import delete_file
 from db.MongoConnect import connect_to_collection
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
     get_database_train_collection_name_from_conf, get_database_images_collection_name_from_conf
-from data_enriching.FeaturesExtractionService import run_model
+from data_enriching.FeaturesExtractionService import FeatureExtractor
 
 
 def extract_features(image, app_configs):
+    feature_extractor = FeatureExtractor()
     # saving image to tmp directory
     image_path = os.path.join(app_configs, image.filename)
     image.save(image_path)
 
     # extracting image features
-    clip_result = run_model('clip', image_path)
-    resnet_result = run_model('resnet', image_path)
+    clip_result = feature_extractor.run_model('clip', image_path)
+    resnet_result = feature_extractor.run_model('resnet', image_path)
 
     delete_file(image_path)
 

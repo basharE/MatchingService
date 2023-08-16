@@ -4,7 +4,7 @@ from tensorflow.python.lib.io.file_io import delete_file
 
 from configuration.ConfigurationService import get_directory_from_conf, get_database_uri_from_conf, \
     get_database_name_from_conf, get_database_collection_name_from_conf, get_frames_directory_from_conf
-from data_enriching.FeaturesExtractionService import run_model
+from data_enriching.FeaturesExtractionService import FeatureExtractor
 from db.MongoConnect import connect_to_collection
 import logging
 
@@ -52,9 +52,10 @@ def process_video(request):
 def run_models(request, images_list):
     image_data = {'name': request.form['name'], 'description': request.form['description']}
     i = 1
+    feature_extractor = FeatureExtractor()
     for image_path in images_list:
-        clip_result = run_model('clip', image_path)
-        resnet_result = run_model('resnet', image_path)
+        clip_result = feature_extractor.run_model('clip', image_path)
+        resnet_result = feature_extractor.run_model('resnet', image_path)
         image_data['image' + str(i)] = dict(image=image_path, clip=clip_result.tolist(), resnet=resnet_result.tolist())
         i = i + 1
     return image_data
