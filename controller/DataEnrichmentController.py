@@ -17,3 +17,7 @@ class DataEnrichmentController(BaseController):
         @self.app.route(f"{self.ENRICH_ROUTE}/video", methods=["POST"])
         def process_video():
             return Handler.handle_video_request(request)
+
+        @self.app.route(f"{self.ENRICH_ROUTE}/label", methods=["POST"])
+        def label_image():
+            return Handler.handle_labeling_request(request)

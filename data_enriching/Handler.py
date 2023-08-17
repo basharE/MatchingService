@@ -3,11 +3,13 @@ import os
 from tensorflow.python.lib.io.file_io import delete_file
 
 from configuration.ConfigurationService import get_directory_from_conf, get_database_uri_from_conf, \
-    get_database_name_from_conf, get_database_collection_name_from_conf, get_frames_directory_from_conf
+    get_database_name_from_conf, get_database_collection_name_from_conf, get_frames_directory_from_conf, \
+    get_image_directory_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
 from db.MongoConnect import connect_to_collection
 import logging
 
+from image_find.FrameHandler import extract_features, find_similarities, save_as_train_data
 from images_selector.Orchestrator import orchestrate
 from utils.PathUtils import create_path
 
@@ -89,3 +91,13 @@ def delete_saved_images(images_list):
 def saved_images_string(images_list):
     return 'Processing video was done, the images were saved to db successfully. Images number: ' + str(
         len(images_list)), 200
+
+
+def handle_labeling_request(request):
+    image = request.files['image']
+    class_of_image = request.form['class']
+    image_features = extract_features(image, get_image_directory_from_conf())
+    images_similarities = find_similarities(image_features, class_of_image)
+    if class_of_image != 0:
+        save_as_train_data(images_similarities)
+    return 'best ', 200

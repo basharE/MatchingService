@@ -41,11 +41,19 @@ def calculate_images_diff(image_name, tmp_doc, image_features):
     return distances_dict
 
 
-def calculate_distance(doc, image_features, class_of_image):
-    diff_dict = {}
+def get_images_entries(doc):
+    images_names_list = list()
+    dic_keys = doc.keys()
+    for entry in dic_keys:
+        if "image" in entry:
+            images_names_list.append(entry)
+    return images_names_list
 
-    for i in range(1, 5):
-        image_name = "image" + str(i)
+
+def calculate_distance(doc, image_features, class_of_image):
+    images_entries = get_images_entries(doc)
+    diff_dict = {}
+    for image_name in images_entries:
         tmp_doc = doc.get(image_name)
         if tmp_doc is None:
             break
@@ -64,7 +72,7 @@ def find_similarities(image_features, class_of_image):
     images_comparison = {}
 
     # Iterate over documents in the collection
-    for doc in collection.find({}, {"_id": 1, "image1": 1, "image2": 1, "image3": 1, "image4": 1}):
+    for doc in collection.find():
         image_id = str(doc.get("_id"))
         distance = calculate_distance(doc, image_features, class_of_image == image_id)
         images_comparison[image_id] = distance
