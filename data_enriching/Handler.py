@@ -86,7 +86,10 @@ def save_images_from_request(request, app_configs):
 
 def delete_saved_images(images_list):
     for image_path in images_list:
-        delete_file(image_path)
+        try:
+            delete_file(image_path)
+        except Exception as e:
+            logging.warning(f"Error deleting {image_path}: {e}")
 
 
 def saved_images_string(images_list):

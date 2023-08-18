@@ -104,7 +104,10 @@ def prepare_video(video_name):
         logging.info('Starting orchestrate for file: %s', video_name)
         vid_cap = cv2.VideoCapture(get_directory_from_conf() + video_name)
         split_images_stream(vid_cap, video_name)
-        delete_file(get_directory_from_conf() + video_name)
+        try:
+            delete_file(get_directory_from_conf() + video_name)
+        except Exception as e:
+            logging.warning(f"Error deleting {get_directory_from_conf() + video_name}: {e}")
         logging.info('Completed processing prepare_video: %s', video_name)
     else:
         logging.info('No need to process prepare_video: %s, image set already exist', video_name)

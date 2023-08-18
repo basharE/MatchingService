@@ -1,3 +1,4 @@
+import logging
 import os
 import numpy as np
 
@@ -21,7 +22,10 @@ def extract_features(image, app_configs):
     clip_result = feature_extractor.run_model('clip', image_path)
     resnet_result = feature_extractor.run_model('resnet', image_path)
 
-    delete_file(image_path)
+    try:
+        delete_file(image_path)
+    except Exception as e:
+        logging.warning(f"Error deleting {image_path}: {e}")
 
     return dict(clip=clip_result, resnet=resnet_result)
 
