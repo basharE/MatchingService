@@ -1,3 +1,5 @@
+import logging
+
 from controller.BaseController import BaseController
 from data_enriching import Handler
 from flask import request
@@ -12,12 +14,21 @@ class DataEnrichmentController(BaseController):
 
         @self.app.route(f"{self.ENRICH_ROUTE}/image", methods=["POST"])
         def process_image():
-            return Handler.handle_image_request(request, upload_folder)
+            logging.info("***** Starting Enriching Image *****")
+            response = Handler.handle_image_request(request, upload_folder)
+            logging.info("***** Enriching Image Finished *****")
+            return response
 
         @self.app.route(f"{self.ENRICH_ROUTE}/video", methods=["POST"])
         def process_video():
-            return Handler.handle_video_request(request)
+            logging.info("***** Starting Enriching Video *****")
+            response = Handler.handle_video_request(request)
+            logging.info("***** Enriching Video Finished *****")
+            return response
 
         @self.app.route(f"{self.ENRICH_ROUTE}/label", methods=["POST"])
         def label_image():
-            return Handler.handle_labeling_request(request)
+            logging.info("***** Starting Labeling Image *****")
+            response = Handler.handle_labeling_request(request)
+            logging.info("***** Labeling Image Finished *****")
+            return response

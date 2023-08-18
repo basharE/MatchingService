@@ -9,6 +9,7 @@ from data_enriching.FeaturesExtractionService import FeatureExtractor
 from db.MongoConnect import connect_to_collection
 import logging
 
+from db.MongoCustomQueries import insert_one_
 from image_find.FrameHandler import extract_features, find_similarities, save_as_train_data
 from images_selector.Orchestrator import orchestrate
 from utils.PathUtils import create_path
@@ -69,7 +70,7 @@ def save_to_db(image_data):
     database_name = get_database_name_from_conf()
     collection_name = get_database_collection_name_from_conf()
     collection = connect_to_collection(uri, database_name, collection_name)
-    collection.insert_one(image_data)
+    insert_one_(collection, image_data)
     logging.info('Completed processing save_to_db to collection: %s', collection_name)
 
 

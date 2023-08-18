@@ -8,6 +8,7 @@ from db.MongoConnect import connect_to_collection
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
     get_database_train_collection_name_from_conf, get_database_images_collection_name_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
+from db.MongoCustomQueries import insert_one_
 
 
 def extract_features(image, app_configs):
@@ -100,7 +101,7 @@ def find_image_most_similarity(images_similarities):
 def save_as_train_data(images_similarities):
     collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
                                        get_database_train_collection_name_from_conf())
-    collection.insert_one(images_similarities)
+    insert_one_(collection, images_similarities)
 
 
 def handle_request(request, app_configs):

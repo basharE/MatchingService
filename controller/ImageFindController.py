@@ -1,3 +1,5 @@
+import logging
+
 from flask import request
 
 from controller.BaseController import BaseController
@@ -10,4 +12,7 @@ class ImageFindController(BaseController):
     def setup_routes(self):
         @self.app.route(f"{self.ENRICH_ROUTE}/image", methods=["POST"])
         def find_image():
-            return FrameHandler.handle_request(request, self.config.get_config().get('common').get('upload_folder'))
+            logging.info("***** Starting Finding Image *****")
+            response = FrameHandler.handle_request(request, self.config.get_config().get('common').get('upload_folder'))
+            logging.info("***** Finding Image Finished *****")
+            return response
