@@ -47,3 +47,12 @@ Label:
 ## Service Architecture
 
 ![Screenshot 2023-08-18 at 10.06.14.png](uploads%2Fdesign%2FScreenshot%202023-08-18%20at%2010.06.14.png)
+
+### TODO:
+
+- Build trainning data in this: get top 3 results, get percent of results above threshold (mini research needed to decid
+  about it) and add column that will contain the location zone.
+  example data frame should look
+  like: [top1_clip, top1_resnet, top2_clip, top2_resnet, top3_clip, top3_resnet, percent, zone]
+- Capture a video from museum, then split it to frames, these frames compare them to the represntive images that
+  image_selector chose, then check if frames that captured should be represnted by or not.
