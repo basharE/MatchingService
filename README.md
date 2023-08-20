@@ -50,9 +50,12 @@ Label:
 
 ### TODO:
 
-- Build trainning data in this: get top 3 results, get percent of results above threshold (mini research needed to decid
+- Build training data in this: get top 3 results, get percent of results above threshold (mini research needed to decide
   about it) and add column that will contain the location zone.
   example data frame should look
   like: [top1_clip, top1_resnet, top2_clip, top2_resnet, top3_clip, top3_resnet, percent, zone]
-- Capture a video from museum, then split it to frames, these frames compare them to the represntive images that
-  image_selector chose, then check if frames that captured should be represnted by or not.
+- Capture a video from museum, then split it to frames, these frames compare them to the representative images that
+  image_selector chose, then check if frames that captured should be represented by or not.
+- In thesis proposal, update the Research question and goals by deleting the repetitive text, and replace it by talking
+  on challenges.
+- Need also to add primer results, to talk about results we have till now.
