@@ -80,6 +80,7 @@ def find_similarities(image_features, class_of_image):
     for doc in collection.find():
         image_id = str(doc.get("_id"))
         distance = calculate_distance(doc, image_features, class_of_image == image_id)
+        distance.update({'zone': doc.get("description")})
         images_comparison[image_id] = distance
 
     return images_comparison

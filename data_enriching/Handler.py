@@ -6,6 +6,7 @@ from configuration.ConfigurationService import get_directory_from_conf, get_data
     get_database_name_from_conf, get_database_collection_name_from_conf, get_frames_directory_from_conf, \
     get_image_directory_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
+from data_enriching.TrainDataFrameBuilder import find_best_k_results
 from db.MongoConnect import connect_to_collection
 import logging
 
@@ -102,6 +103,7 @@ def handle_labeling_request(request):
     class_of_image = request.form['class']
     image_features = extract_features(image, get_image_directory_from_conf())
     images_similarities = find_similarities(image_features, class_of_image)
+    find_best_k_results(images_similarities)
     if class_of_image != 0:
         save_as_train_data(images_similarities)
     return 'best ', 200
