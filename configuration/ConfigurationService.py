@@ -47,3 +47,15 @@ def get_threshold_const_from_conf():
 
 def get_image_directory_from_conf():
     return get_configuration_value('video.image_directory')
+
+
+def get_clip_threshold_from_conf():
+    return get_configuration_value('training.clip_threshold')
+
+
+def get_resnet_threshold_from_conf():
+    return get_configuration_value('training.resnet_threshold')
+
+
+def get_number_of_highest_results_from_conf():
+    return get_configuration_value('training.number_of_highest_results')

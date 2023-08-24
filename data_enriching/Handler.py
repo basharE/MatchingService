@@ -34,6 +34,7 @@ def handle_video_request(request):
         chosen_images = [images_paths[index] for index in top_images]
         images_dto = run_models(request, chosen_images)
         images_dto['frames_number'] = total_number_of_frames
+        images_dto['representative_images_number'] = len(top_images)
         images_dto['representative_images'] = table
         images_dto['video_name'] = video_name_without_ext
         delete_saved_images(images_paths)

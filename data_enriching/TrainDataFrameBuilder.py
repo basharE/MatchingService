@@ -1,5 +1,7 @@
 from collections import ChainMap
 
+from configuration.ConfigurationService import get_clip_threshold_from_conf, get_resnet_threshold_from_conf, \
+    get_number_of_highest_results_from_conf
 from data_enriching.ZoneService import Zone
 
 
@@ -40,8 +42,9 @@ def get_zone(zone_name):
 # need to build a request object that will contain initial metadata related to request (zone, name, description ...)
 # then it will be enriched with data like number of frames, video length ...
 def find_best_k_results(similarities):
-    threshold = {'clip': 0.55, 'resnet': 0.25}
-    k = 3
+    threshold = {'clip': get_clip_threshold_from_conf(), 'resnet': get_resnet_threshold_from_conf()}
+    k = get_number_of_highest_results_from_conf()
+
     types = ["clip", "resnet"]
     similarities_as_data_frame = {}
     for item in similarities.items():
