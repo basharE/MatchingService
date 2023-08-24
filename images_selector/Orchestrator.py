@@ -16,6 +16,7 @@ from utils.VideoUtils import split_images_stream
 import logging
 
 from utils.Common import remove_extension
+from tabulate import tabulate
 
 
 def count_ones(image_comparison_res):
@@ -30,7 +31,7 @@ def find_max_ones(results_matrix):
         if tmp_max > max_ones:
             max_ones = tmp_max
             max_index = x
-    return max_index
+    return max_index, max_ones
 
 
 def is_representation_covered(results_matrix):
@@ -50,13 +51,16 @@ def turn_ones_to_tows(results_matrix, index):
 def get_top_images(results_matrix):
     logging.info('Starting get_top_images from total number of images: %s', len(results_matrix))
     top_images_with_ones = list()
+    top_images_count_ones = list()
+
     while not is_representation_covered(results_matrix):
-        index_ = find_max_ones(results_matrix)
+        index_, counts = find_max_ones(results_matrix)
         top_images_with_ones.append(index_)
+        top_images_count_ones.append(counts)
         turn_ones_to_tows(results_matrix, index_)
     logging.info('Completed processing get_top_images, returns %s images from total of %s', len(top_images_with_ones),
                  len(results_matrix))
-    return top_images_with_ones
+    return top_images_with_ones, top_images_count_ones
 
 
 def extract_features(images_location, feature_extractor):
@@ -120,6 +124,17 @@ def orchestrate(video_name):
                                                    feature_extractor)
     results_matrix = build_comparison_matrix(features_list)
     convert_matrix_to_ones_zeros(results_matrix, get_threshold_const_from_conf())
-    top_images = get_top_images(results_matrix)
-    logging.info('Completed processing orchestrate for file: %s, images: %s', video_name, top_images)
+    top_images, top_images_counts = get_top_images(results_matrix)
+    # Combine the data into a list of lists
+    combined_data = list(zip(top_images, top_images_counts))
+
+    # Define the headers for the table
+    headers = ["Image Index", "Number of appearances"]
+
+    # Format and render the table
+    table = tabulate(combined_data, headers=headers, tablefmt="grid")
+
+    logging.info('Completed processing orchestrate for file: %s, images: %s, counts respectively: %s', video_name,
+                 top_images, top_images_counts)
+    logging.info("Table of images representing the video and their appearances:\n %s", table)
     return top_images, images_names, remove_extension(video_name)
