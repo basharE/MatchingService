@@ -30,9 +30,12 @@ def handle_image_request(request, app_configs):
 
 def handle_video_request(request):
     try:
-        top_images, images_paths, video_name_without_ext = process_video(request)
+        top_images, images_paths, video_name_without_ext, total_number_of_frames, table = process_video(request)
         chosen_images = [images_paths[index] for index in top_images]
         images_dto = run_models(request, chosen_images)
+        images_dto['frames_number'] = total_number_of_frames
+        images_dto['representative_images'] = table
+        images_dto['video_name'] = video_name_without_ext
         delete_saved_images(images_paths)
         os.rmdir(get_frames_directory_from_conf() + video_name_without_ext)
         save_to_db(images_dto)
