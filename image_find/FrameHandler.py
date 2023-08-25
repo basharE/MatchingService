@@ -7,9 +7,10 @@ from tensorflow.python.lib.io.file_io import delete_file
 
 from db.MongoConnect import connect_to_collection
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
-    get_database_train_collection_name_from_conf, get_database_images_collection_name_from_conf
+    get_database_images_collection_name_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
-from db.MongoCustomQueries import insert_one_
+from db.MongoCustomQueries import save_as_train_data
+import re
 
 
 def extract_features(image, app_configs):
@@ -49,8 +50,10 @@ def calculate_images_diff(image_name, tmp_doc, image_features):
 def get_images_entries(doc):
     images_names_list = list()
     dic_keys = doc.keys()
+    pattern = r"image\d+"
+
     for entry in dic_keys:
-        if "image" in entry:
+        if re.findall(pattern, entry):
             images_names_list.append(entry)
     return images_names_list
 
@@ -101,12 +104,6 @@ def find_image_most_similarity(images_similarities):
             avg = tmp_avg
             key = k
     return key
-
-
-def save_as_train_data(images_similarities):
-    collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
-                                       get_database_train_collection_name_from_conf())
-    insert_one_(collection, images_similarities)
 
 
 def handle_request(request, app_configs):

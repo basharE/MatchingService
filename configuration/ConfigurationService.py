@@ -29,6 +29,10 @@ def get_database_train_collection_name_from_conf():
     return get_configuration_value('database.train_collection_name')
 
 
+def get_database_new_train_collection_name_from_conf():
+    return get_configuration_value('database.new_train_collection_name')
+
+
 def get_frames_directory_from_conf():
     return get_configuration_value('video.frames_directory')
 
@@ -50,12 +54,12 @@ def get_image_directory_from_conf():
 
 
 def get_clip_threshold_from_conf():
-    return get_configuration_value('training.clip_threshold')
+    return float(get_configuration_value('training.clip_threshold'))
 
 
 def get_resnet_threshold_from_conf():
-    return get_configuration_value('training.resnet_threshold')
+    return float(get_configuration_value('training.resnet_threshold'))
 
 
 def get_number_of_highest_results_from_conf():
-    return get_configuration_value('training.number_of_highest_results')
+    return int(get_configuration_value('training.number_of_highest_results'))

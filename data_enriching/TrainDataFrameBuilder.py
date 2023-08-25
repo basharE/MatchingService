@@ -39,6 +39,28 @@ def get_zone(zone_name):
     return {'zone': zone_represented_number}
 
 
+def get_average(types, item_value):
+    average_results = {}
+    for the_type in types:
+        count = 0
+        sum = 0
+        for similarity in item_value.items():
+            similarity_key, similarity_value = similarity
+            if isinstance(similarity_value, float) and the_type in similarity_key.lower():
+                sum = sum + similarity_value
+                count = count + 1
+        average_results[the_type + '_average'] = sum / count
+
+    return average_results
+
+
+def get_label(item_value):
+    for similarity in item_value.items():
+        similarity_key, similarity_value = similarity
+        if "class_of_image" in similarity_key:
+            return {'class': similarity_value}
+
+
 # need to build a request object that will contain initial metadata related to request (zone, name, description ...)
 # then it will be enriched with data like number of frames, video length ...
 def find_best_k_results(similarities):
@@ -51,8 +73,12 @@ def find_best_k_results(similarities):
         item_key, item_value = item
         best_k_results = get_best_k_of_types(k, types, item_value)
         percent_of_types = get_percent_of_types_for_threshold(threshold, types, item_value)
+        average_of_models_runs = get_average(types, item_value)
+        label = get_label(item_value)
         best_k_results.update(percent_of_types)
-        concatenated_dict = dict(ChainMap(best_k_results, percent_of_types, get_zone(item_value['zone'])))
+        concatenated_dict = dict(
+            ChainMap(best_k_results, percent_of_types, get_zone(item_value['zone']), average_of_models_runs,
+                     label))
         similarities_as_data_frame[item_key] = concatenated_dict
 
     return similarities_as_data_frame

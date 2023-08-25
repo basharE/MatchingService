@@ -10,7 +10,7 @@ from data_enriching.TrainDataFrameBuilder import find_best_k_results
 from db.MongoConnect import connect_to_collection
 import logging
 
-from db.MongoCustomQueries import insert_one_
+from db.MongoCustomQueries import insert_one_, save_as_new_train_data
 from image_find.FrameHandler import extract_features, find_similarities, save_as_train_data
 from images_selector.Orchestrator import orchestrate
 from utils.PathUtils import create_path
@@ -107,7 +107,8 @@ def handle_labeling_request(request):
     class_of_image = request.form['class']
     image_features = extract_features(image, get_image_directory_from_conf())
     images_similarities = find_similarities(image_features, class_of_image)
-    find_best_k_results(images_similarities)
+    best_k_results = find_best_k_results(images_similarities)
     if class_of_image != 0:
+        save_as_new_train_data(best_k_results)
         save_as_train_data(images_similarities)
     return 'best ', 200
