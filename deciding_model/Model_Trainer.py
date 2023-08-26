@@ -11,7 +11,16 @@ from sklearn.metrics import f1_score
 from deciding_model.Db_to_df_converter import get_from_mongo_to_dataframe
 
 
-class ClassifierTrainer:
+class SingletonMeta(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(SingletonMeta, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class ClassifierTrainer(metaclass=SingletonMeta):
     def __init__(self):
         self.best_classifier = None
         self.best_accuracy = 0

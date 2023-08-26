@@ -1,7 +1,7 @@
 import logging
 
 from controller.BaseController import BaseController
-from deciding_model import Model_Trainer
+from deciding_model.Model_Trainer import ClassifierTrainer
 from services import ModelTrainingService
 
 
@@ -9,10 +9,12 @@ class ModelTrainingController(BaseController):
     ENRICH_ROUTE = "/api/train"  # Define the common part of the route
 
     def setup_routes(self):
+        trainer = ClassifierTrainer()
+
         @self.app.route(f"{self.ENRICH_ROUTE}", methods=["GET"])
         def train_model():
             logging.info("***** Starting Training Classification Model *****")
-            Model_Trainer.train_model(False)
+            trainer.train_best_classifier(False)
             logging.info("***** Training Classification Model Finished *****")
             return 'done', 200
 
@@ -26,6 +28,6 @@ class ModelTrainingController(BaseController):
         @self.app.route(f"{self.ENRICH_ROUTE}/new", methods=["GET"])
         def train_new_train_data():
             logging.info("***** Starting Train New Training Model *****")
-            Model_Trainer.train_model(True)
+            trainer.train_best_classifier(True)
             logging.info("***** Train New Training Model Finished *****")
             return 'done', 200
