@@ -27,19 +27,19 @@ class ClassifierTrainer(metaclass=SingletonMeta):
 
     @staticmethod
     def perf_measure(y_actual, y_hat):
-        TP, FP, TN, FN = 0, 0, 0, 0
+        _TP, _FP, _TN, _FN = 0, 0, 0, 0
 
         for actual, predicted in zip(y_actual, y_hat):
             if actual == predicted == 1:
-                TP += 1
+                _TP += 1
             elif predicted == 1 and actual != predicted:
-                FP += 1
+                _FP += 1
             elif actual == predicted == 0:
-                TN += 1
+                _TN += 1
             elif predicted == 0 and actual != predicted:
-                FN += 1
+                _FN += 1
 
-        return f"TP: {TP}, FP: {FP}, TN: {TN}, FN: {FN}"
+        return f"TP: {_TP}, FP: {_FP}, TN: {_TN}, FN: {_FN}"
 
     def train_best_classifier(self, new):
         # Get dataframe from the database
