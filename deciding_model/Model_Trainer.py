@@ -41,6 +41,12 @@ class ClassifierTrainer(metaclass=SingletonMeta):
 
         return f"TP: {_TP}, FP: {_FP}, TN: {_TN}, FN: {_FN}"
 
+    def predict_all(self, input_df):
+        X = input_df.iloc[:, 1:]
+        scaler = preprocessing.MinMaxScaler()
+        X_normalized = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+        return self.best_classifier.predict(X_normalized)
+
     def train_best_classifier(self, new):
         # Get dataframe from the database
         data_frame = get_from_mongo_to_dataframe(new)

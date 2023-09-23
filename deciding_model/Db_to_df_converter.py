@@ -38,6 +38,22 @@ def get_from_mongo_to_dataframe(new):
     return df
 
 
+def convert_to_df(data):
+    _df = pd.DataFrame()
+    if isinstance(data, dict):
+        for items in data.values():
+            if is_dict_with_size(items, 16):
+                data = [list(items.values())]
+                columns = get_unified_header(list(items))
+                if _df.empty:
+                    _df = pd.DataFrame(data, columns=columns)
+                else:
+                    df_tmp = pd.DataFrame(data, columns=columns)
+                    _df = pd.concat([_df, df_tmp], ignore_index=True)
+                    _df.reset_index()
+    return _df
+
+
 def is_dict_with_size(obj, size):
     return isinstance(obj, dict) and len(obj) == size
 

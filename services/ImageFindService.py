@@ -1,5 +1,6 @@
 from configuration.ConfigurationService import get_image_directory_from_conf
 from data_enriching.TrainDataFrameBuilder import find_best_k_results
+from deciding_model.Db_to_df_converter import convert_to_df
 from image_find.FrameHandler import extract_features, find_similarities
 from image_find.ImageWrapper import ImageWrapper
 
@@ -14,10 +15,14 @@ def handle_request(request):
         features = get_image_features(request)
         images_similarities = find_similarities(features, None)
         best_k_results = find_best_k_results(images_similarities)
-        print(best_k_results)
-        logging.info("finished-----")
+        return convert_to_df(best_k_results)
     except Exception as e:
         logging.error(f"Error processing request: {str(e)}")
+
+
+def get_result_of_prediction(data):
+    # need to implemented
+    return
 
 
 def get_image_features(request):

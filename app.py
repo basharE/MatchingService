@@ -1,5 +1,6 @@
 import logging
 from flask import Flask
+from transformers import trainer
 from waitress import serve
 
 from configuration.AppConfig import AppConfig
@@ -7,6 +8,14 @@ from controller.DataEnrichmentController import DataEnrichmentController
 from controller.HealthCheckController import HealthCheckController
 from controller.ImageFindController import ImageFindController
 from controller.ModelTrainingController import ModelTrainingController
+from deciding_model.Model_Trainer import ClassifierTrainer
+
+
+def train_before_starting():
+    logging.info("***** Starting Train New Training Model *****")
+    trainer_ = ClassifierTrainer()
+    trainer_.train_best_classifier(True)
+    logging.info("***** Train New Training Model Finished *****")
 
 
 class App:
@@ -18,6 +27,7 @@ class App:
         self.image_find_controller = ImageFindController(self.app, self.config)
         self.model_training_controller = ModelTrainingController(self.app, self.config)
         self.health_check_controller = HealthCheckController(self.app, self.config)
+        train_before_starting()
 
     def configure_logging(self):
         app_config = self.config.get_config().get('log')
