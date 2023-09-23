@@ -1,9 +1,9 @@
 import logging
 
-from flask import request
-
+from flask import request, abort
 from controller.BaseController import BaseController
-from image_find import FrameHandler
+from deciding_model.Model_Trainer import ClassifierTrainer
+from services import ImageFindService
 
 
 class ImageFindController(BaseController):
@@ -13,6 +13,15 @@ class ImageFindController(BaseController):
         @self.app.route(f"{self.ENRICH_ROUTE}/image", methods=["POST"])
         def find_image():
             logging.info("***** Starting Finding Image *****")
-            response = FrameHandler.handle_request(request, self.config.get_config().get('common').get('upload_folder'))
-            logging.info("***** Finding Image Finished *****")
-            return response
+            response = ImageFindService.handle_request(request)
+
+
+            trainer = ClassifierTrainer()
+            best_classifier = trainer.best_classifier
+            if best_classifier is None:
+                # Raise a 404 Not Found exception
+                abort(404, description="Best classifier not found, Please Train Data Before!")
+            else:
+                response = ImageFindService.handle_request(request)
+                logging.info("***** Finding Image Finished *****")
+                return response
