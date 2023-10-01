@@ -24,6 +24,7 @@ class ClassifierTrainer(metaclass=SingletonMeta):
     def __init__(self):
         self.best_classifier = None
         self.best_accuracy = 0
+        self.classifiers = list()
 
     @staticmethod
     def perf_measure(y_actual, y_hat):
@@ -79,7 +80,7 @@ class ClassifierTrainer(metaclass=SingletonMeta):
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             acc = accuracy_score(y_test, y_pred)
-
+            self.classifiers.append(clf)
             if acc > self.best_accuracy:
                 self.best_accuracy = acc
                 self.best_classifier = clf
