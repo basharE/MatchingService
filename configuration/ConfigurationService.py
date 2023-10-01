@@ -45,8 +45,12 @@ def get_directory_from_conf():
     return get_configuration_value('video.video_directory')
 
 
-def get_threshold_const_from_conf():
-    return get_configuration_value('video.threshold_const')
+def get_clip_threshold_const_from_conf():
+    return get_configuration_value('video.clip_threshold_const')
+
+
+def get_resnet_threshold_const_from_conf():
+    return get_configuration_value('video.resnet_threshold_const')
 
 
 def get_image_directory_from_conf():

@@ -1,5 +1,6 @@
 import logging
 
+from configuration.Decorators import log_request_and_response
 from controller.BaseController import BaseController
 from data_enriching import Handler
 from flask import request
@@ -20,10 +21,9 @@ class DataEnrichmentController(BaseController):
             return response
 
         @self.app.route(f"{self.ENRICH_ROUTE}/video", methods=["POST"])
+        @log_request_and_response
         def process_video():
-            logging.info("***** Starting Enriching Video *****")
             response = Handler.handle_video_request(request)
-            logging.info("***** Enriching Video Finished *****")
             return response
 
         @self.app.route(f"{self.ENRICH_ROUTE}/label", methods=["POST"])

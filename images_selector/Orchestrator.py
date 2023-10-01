@@ -5,10 +5,9 @@ from os.path import isfile, join
 
 import cv2
 from scipy.spatial.distance import euclidean
-from tensorflow.python.lib.io.file_io import delete_file
 
 from configuration.ConfigurationService import get_frames_directory_from_conf, get_directory_from_conf, \
-    get_threshold_const_from_conf
+    get_clip_threshold_const_from_conf, get_resnet_threshold_const_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
 from utils.PathUtils import create_path
 from utils.SortingUtils import alphanum_key
@@ -63,7 +62,7 @@ def get_top_images(results_matrix):
     return top_images_with_ones, top_images_count_ones, len(results_matrix)
 
 
-def extract_features(images_location, feature_extractor):
+def extract_features(images_location, feature_extractor, model):
     logging.info('Starting extract_features in location: %s', images_location)
     features_list = list()
     images_names_list = list()
@@ -71,7 +70,7 @@ def extract_features(images_location, feature_extractor):
     only_files.sort(key=alphanum_key)
     for x in range(len(only_files)):
         route = images_location + "/" + only_files[x]
-        features_list.append(feature_extractor.run_model("clip", route))
+        features_list.append(feature_extractor.run_model(model, route))
         images_names_list.append(route)
     logging.info('Completed processing extract_features in location: %s', images_location)
     return features_list, images_names_list
@@ -108,22 +107,22 @@ def prepare_video(video_name):
         logging.info('Starting orchestrate for file: %s', video_name)
         vid_cap = cv2.VideoCapture(get_directory_from_conf() + video_name)
         split_images_stream(vid_cap, video_name)
-        try:
-            delete_file(get_directory_from_conf() + video_name)
-        except Exception as e:
-            logging.warning(f"Error deleting {get_directory_from_conf() + video_name}: {e}")
         logging.info('Completed processing prepare_video: %s', video_name)
     else:
         logging.info('No need to process prepare_video: %s, image set already exist', video_name)
 
 
-def orchestrate(video_name):
-    prepare_video(video_name)
+def orchestrate(video_name, model):
+    if model == "clip":
+        prepare_video(video_name)
     feature_extractor = FeatureExtractor()
     features_list, images_names = extract_features(get_frames_directory_from_conf() + remove_extension(video_name),
-                                                   feature_extractor)
+                                                   feature_extractor, model)
     results_matrix = build_comparison_matrix(features_list)
-    convert_matrix_to_ones_zeros(results_matrix, get_threshold_const_from_conf())
+    if model == "resnet":
+        convert_matrix_to_ones_zeros(results_matrix, get_resnet_threshold_const_from_conf())
+    else:
+        convert_matrix_to_ones_zeros(results_matrix, get_clip_threshold_const_from_conf())
     top_images, top_images_counts, frames_number = get_top_images(results_matrix)
     # Combine the data into a list of lists
     combined_data = list(zip(top_images, top_images_counts))

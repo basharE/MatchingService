@@ -8,6 +8,7 @@ from controller.DataEnrichmentController import DataEnrichmentController
 from controller.HealthCheckController import HealthCheckController
 from controller.ImageFindController import ImageFindController
 from controller.ModelTrainingController import ModelTrainingController
+from controller.TestFlowController import TestFlowController
 from deciding_model.Model_Trainer import ClassifierTrainer
 
 
@@ -27,6 +28,7 @@ class App:
         self.image_find_controller = ImageFindController(self.app, self.config)
         self.model_training_controller = ModelTrainingController(self.app, self.config)
         self.health_check_controller = HealthCheckController(self.app, self.config)
+        self.test_flow_controller = TestFlowController(self.app, self.config)
         train_before_starting()
 
     def configure_logging(self):

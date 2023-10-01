@@ -30,14 +30,28 @@ def handle_image_request(request, app_configs):
 
 def handle_video_request(request):
     try:
-        top_images, images_paths, video_name_without_ext, total_number_of_frames, table = process_video(request)
+        cap = request.files['video']
+
+        top_images, images_paths, video_name_without_ext, total_number_of_frames, table = process_video(cap, "clip")
         chosen_images = [images_paths[index] for index in top_images]
-        images_dto = run_models(request, chosen_images)
+        images_dto = run_clip(request, chosen_images)
+        images_dto['clip_representative_images_number'] = len(top_images)
+        images_dto['clip_representative_images'] = table
+
+        top_images, images_paths, video_name_without_ext, total_number_of_frames, table = process_video(cap,
+                                                                                                        "resnet")
+        chosen_images = [images_paths[index] for index in top_images]
+        images_dto.update(run_resnet(request, chosen_images))
+        images_dto['resnet_representative_images_number'] = len(top_images)
+        images_dto['resnet_representative_images'] = table
+
         images_dto['frames_number'] = total_number_of_frames
-        images_dto['representative_images_number'] = len(top_images)
-        images_dto['representative_images'] = table
         images_dto['video_name'] = video_name_without_ext
         delete_saved_images(images_paths)
+        try:
+            delete_file(get_directory_from_conf() + cap.filename)
+        except Exception as e:
+            logging.warning(f"Error deleting {get_directory_from_conf() + video_name}: {e}")
         os.rmdir(get_frames_directory_from_conf() + video_name_without_ext)
         save_to_db(images_dto)
         return saved_images_string(chosen_images)
@@ -46,15 +60,14 @@ def handle_video_request(request):
     return "", 500
 
 
-def process_video(request):
+def process_video(cap, model):
     video_directory = get_directory_from_conf()
-    cap = request.files['video']
     video_name = cap.filename
     if video_name == '':
         return 'No selected video file'
     create_path(video_directory)
     cap.save(os.path.join(video_directory, cap.filename))  # Save the video file to the specified directory
-    return orchestrate(video_name)
+    return orchestrate(video_name, model)
 
 
 def run_models(request, images_list):
@@ -65,6 +78,28 @@ def run_models(request, images_list):
         clip_result = feature_extractor.run_model('clip', image_path)
         resnet_result = feature_extractor.run_model('resnet', image_path)
         image_data['image' + str(i)] = dict(image=image_path, clip=clip_result.tolist(), resnet=resnet_result.tolist())
+        i = i + 1
+    return image_data
+
+
+def run_clip(request, images_list):
+    image_data = {'name': request.form['name'], 'description': request.form['description']}
+    i = 1
+    feature_extractor = FeatureExtractor()
+    for image_path in images_list:
+        clip_result = feature_extractor.run_model('clip', image_path)
+        image_data['clip_image' + str(i)] = dict(image=image_path, clip=clip_result.tolist())
+        i = i + 1
+    return image_data
+
+
+def run_resnet(request, images_list):
+    image_data = {'name': request.form['name'], 'description': request.form['description']}
+    i = 1
+    feature_extractor = FeatureExtractor()
+    for image_path in images_list:
+        resnet_result = feature_extractor.run_model('resnet', image_path)
+        image_data['resnet_image' + str(i)] = dict(image=image_path, resnet=resnet_result.tolist())
         i = i + 1
     return image_data
 
