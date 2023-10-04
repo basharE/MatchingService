@@ -2,7 +2,7 @@ import pandas as pd
 
 from db.MongoConnect import connect_to_collection
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
-    get_database_new_train_collection_name_from_conf
+    get_database_new_train_collection_name_from_conf, get_number_of_highest_results_from_conf
 
 
 def get_from_mongo_to_dataframe(new):
@@ -40,9 +40,10 @@ def get_from_mongo_to_dataframe(new):
 
 def convert_to_df(data):
     _df = pd.DataFrame()
+    k = get_number_of_highest_results_from_conf() * 2 + 6
     if isinstance(data, dict):
         for items in data.values():
-            if is_dict_with_size(items, 16):
+            if is_dict_with_size(items, k):
                 data = [list(items.values())]
                 columns = get_unified_header(list(items))
                 if _df.empty:

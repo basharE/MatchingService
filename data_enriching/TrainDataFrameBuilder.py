@@ -76,8 +76,11 @@ def find_best_k_results(similarities):
         average_of_models_runs = get_average(types, item_value)
         label = get_label(item_value)
         best_k_results.update(percent_of_types)
+        # concatenated_dict = dict(
+        #     ChainMap(best_k_results, percent_of_types, get_zone(item_value['zone']), average_of_models_runs,
+        #              label))
         concatenated_dict = dict(
-            ChainMap(best_k_results, percent_of_types, get_zone(item_value['zone']), average_of_models_runs,
+            ChainMap(best_k_results, percent_of_types, average_of_models_runs,
                      label))
         similarities_as_data_frame[item_key] = concatenated_dict
 

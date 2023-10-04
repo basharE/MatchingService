@@ -11,6 +11,7 @@ from utils.Common import remove_extension
 def extract_frame(vid_cap, sec, count, video_name):
     vid_cap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
     has_frames, image = vid_cap.read()
+    image = cv2.rotate(image, cv2.ROTATE_180)
     if has_frames:
         filename = os.path.join(get_frames_directory_from_conf(), video_name, f"image{count}.jpg")
         cv2.imwrite(filename, image)  # save frame as JPG file
