@@ -12,17 +12,17 @@ def get_from_mongo_to_dataframe(new):
     if new:
         for doc in collection.find():
             for v in doc.values():
-                if isinstance(v, list):
-                    for items in v:
-                        if is_dict_with_size(items, 16):
-                            data = [list(items.values())]
-                            columns = get_unified_header(list(items))
-                            if df.empty:
-                                df = pd.DataFrame(data, columns=columns)
-                            else:
-                                df_tmp = pd.DataFrame(data, columns=columns)
-                                df = pd.concat([df, df_tmp], ignore_index=True)
-                                df.reset_index()
+                if isinstance(v, dict):
+                    # for items in v:
+                    if is_dict_with_size(v, 17):
+                        data = [list(v.values())]
+                        columns = get_unified_header(list(v))
+                        if df.empty:
+                            df = pd.DataFrame(data, columns=columns)
+                        else:
+                            df_tmp = pd.DataFrame(data, columns=columns)
+                            df = pd.concat([df, df_tmp], ignore_index=True)
+                            df.reset_index()
     else:
         for doc in collection.find({}, {"_id": 0}):
             for v in doc.values():
@@ -40,7 +40,7 @@ def get_from_mongo_to_dataframe(new):
 
 def convert_to_df(data):
     _df = pd.DataFrame()
-    k = get_number_of_highest_results_from_conf() * 2 + 6
+    k = get_number_of_highest_results_from_conf() * 2 + 5
     if isinstance(data, dict):
         for items in data.values():
             if is_dict_with_size(items, k):

@@ -1,6 +1,5 @@
 import logging
 from flask import Flask
-from transformers import trainer
 from waitress import serve
 
 from configuration.AppConfig import AppConfig

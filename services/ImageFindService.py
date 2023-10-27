@@ -20,9 +20,28 @@ def handle_request(request):
         logging.error(f"Error processing request: {str(e)}")
 
 
+def handle_request_(request):
+    try:
+        features = get_image_features_(request)
+        images_similarities = find_similarities(features, None)
+        best_k_results = find_best_k_results(images_similarities)
+        return convert_to_df(best_k_results)
+    except Exception as e:
+        logging.error(f"Error processing request: {str(e)}")
+
+
 def get_result_of_prediction(data):
-    # need to implemented
-    return
+    if data is None:
+        return "can't find image"
+    if data == -1:
+        return "found more than one candidate, try again"
+    return "image found in index, " + str(data)
+
+
+def get_image_features_(request):
+    image = request.files['image']
+    image_features = extract_features(image, get_image_directory_from_conf())
+    return image_features
 
 
 def get_image_features(request):

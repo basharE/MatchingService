@@ -1,13 +1,16 @@
 import logging
 
 import pandas as pd
+import numpy as np
+
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
-from sklearn import svm, tree, neighbors
+from sklearn import tree, neighbors
 from sklearn.metrics import f1_score
+from sklearn.model_selection import cross_val_score
 from deciding_model.Db_to_df_converter import get_from_mongo_to_dataframe
 
 
@@ -46,7 +49,33 @@ class ClassifierTrainer(metaclass=SingletonMeta):
         X = input_df.iloc[:, 1:]
         scaler = preprocessing.MinMaxScaler()
         X_normalized = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
-        return self.best_classifier.predict(X_normalized)
+        summed_probs = np.zeros((X_normalized.shape[0], 2))  # Adjust num_classes accordingly
+        props_dic = dict()
+        for clf in self.classifiers:
+            probs = clf.predict_proba(X_normalized)
+            clf_string = str(clf)
+            result = clf_string.split("(", 1)[0]
+            props_dic[result] = probs
+            summed_probs += probs
+            logging.info(f"Prediction Result of {clf.__class__.__name__} is {probs}")
+        return self.decide_on_prediction_result(props_dic)
+
+    def decide_on_prediction_result(self, results_dict):
+        MLPClassifier_result = results_dict['MLPClassifier']
+        # Get the index of the maximum value using numpy.argmax
+        max_index = np.argmax(MLPClassifier_result[0:, 1])
+        # Get the maximum value
+        maximum = MLPClassifier_result[0:, 1][max_index]
+        if maximum == 1:
+            return max_index
+
+        RandomForestClassifier_result = results_dict['RandomForestClassifier']
+        indices_above_075 = np.argwhere(RandomForestClassifier_result[0:, 1] > 0.75)
+        if indices_above_075.size > 1:
+            return -1
+        if indices_above_075.size == 1:
+            return indices_above_075
+        return None
 
     def train_best_classifier(self, new):
         # Get dataframe from the database
@@ -67,7 +96,6 @@ class ClassifierTrainer(metaclass=SingletonMeta):
 
         # Define classifiers
         classifiers = [
-            svm.SVC(),
             tree.DecisionTreeClassifier(),
             RandomForestClassifier(),
             MLPClassifier(solver='lbfgs', hidden_layer_sizes=(5,), max_iter=1000),
@@ -75,8 +103,16 @@ class ClassifierTrainer(metaclass=SingletonMeta):
             neighbors.KNeighborsClassifier(n_neighbors=3, weights="distance")
         ]
 
+        num_folds = 10
         # Train and evaluate classifiers
         for clf in classifiers:
+            # CROSS VALIDATION
+            scores = cross_val_score(clf, X_normalized, y, cv=num_folds)
+            # Calculate the mean accuracy across folds
+            acc = scores.mean()
+            logging.info(f"Cross-Validation Accuracy of {clf.__class__.__name__}: {scores}")
+            logging.info(f"Mean Accuracy: {acc}")
+
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             acc = accuracy_score(y_test, y_pred)

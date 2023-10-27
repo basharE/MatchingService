@@ -50,6 +50,7 @@ class FeatureExtractor(metaclass=SingletonMeta):
             )
         elif name == "clip":
             device = "cpu"
+            # model_id = "openai/clip-vit-large-patch14"
             model_id = "openai/clip-vit-base-patch32"
             processor = CLIPProcessor.from_pretrained(model_id)
             model = CLIPModel.from_pretrained(model_id).to(device)
