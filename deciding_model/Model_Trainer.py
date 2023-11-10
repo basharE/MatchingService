@@ -3,15 +3,21 @@ import logging
 import pandas as pd
 import numpy as np
 
+import xgboost as xgb
+
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
+
 from sklearn import tree, neighbors
 from sklearn.metrics import f1_score
 from sklearn.model_selection import cross_val_score
 from deciding_model.Db_to_df_converter import get_from_mongo_to_dataframe
+from deciding_model.ResultEvaluator import ResultEvaluator
 
 
 class SingletonMeta(type):
@@ -45,7 +51,7 @@ class ClassifierTrainer(metaclass=SingletonMeta):
 
         return f"TP: {_TP}, FP: {_FP}, TN: {_TN}, FN: {_FN}"
 
-    def predict_all(self, input_df):
+    def predict_all(self, input_df, _class):
         X = input_df.iloc[:, 1:]
         scaler = preprocessing.MinMaxScaler()
         X_normalized = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
@@ -58,24 +64,8 @@ class ClassifierTrainer(metaclass=SingletonMeta):
             props_dic[result] = probs
             summed_probs += probs
             logging.info(f"Prediction Result of {clf.__class__.__name__} is {probs}")
-        return self.decide_on_prediction_result(props_dic)
-
-    def decide_on_prediction_result(self, results_dict):
-        MLPClassifier_result = results_dict['MLPClassifier']
-        # Get the index of the maximum value using numpy.argmax
-        max_index = np.argmax(MLPClassifier_result[0:, 1])
-        # Get the maximum value
-        maximum = MLPClassifier_result[0:, 1][max_index]
-        if maximum == 1:
-            return max_index
-
-        RandomForestClassifier_result = results_dict['RandomForestClassifier']
-        indices_above_075 = np.argwhere(RandomForestClassifier_result[0:, 1] > 0.75)
-        if indices_above_075.size > 1:
-            return -1
-        if indices_above_075.size == 1:
-            return indices_above_075
-        return None
+        evaluator = ResultEvaluator()
+        return evaluator.evaluate(props_dic, _class)
 
     def train_best_classifier(self, new):
         # Get dataframe from the database
@@ -91,16 +81,20 @@ class ClassifierTrainer(metaclass=SingletonMeta):
         # Split data into train and test sets
         X_train, X_test, y_train, y_test = train_test_split(X_normalized, y,
                                                             random_state=0,
-                                                            test_size=0.2,
+                                                            test_size=0.3,
                                                             shuffle=True)
 
         # Define classifiers
         classifiers = [
             tree.DecisionTreeClassifier(),
             RandomForestClassifier(),
-            MLPClassifier(solver='lbfgs', hidden_layer_sizes=(5,), max_iter=1000),
+            MLPClassifier(solver='lbfgs', hidden_layer_sizes=(20,), max_iter=1000),
             neighbors.KNeighborsClassifier(n_neighbors=3, weights="uniform"),
-            neighbors.KNeighborsClassifier(n_neighbors=3, weights="distance")
+            AdaBoostClassifier(n_estimators=70, random_state=50),
+            xgb.XGBClassifier(n_estimators=70, random_state=50),
+            LogisticRegression(random_state=70),
+            MultinomialNB(),
+            GaussianNB()
         ]
 
         num_folds = 10

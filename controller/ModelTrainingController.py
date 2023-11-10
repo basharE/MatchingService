@@ -31,3 +31,8 @@ class ModelTrainingController(BaseController):
             trainer.train_best_classifier(True)
             logging.info("***** Train New Training Model Finished *****")
             return 'done', 200
+
+        @self.app.route(f"{self.ENRICH_ROUTE}/result", methods=["GET"])
+        def train_result_data():
+            ModelTrainingService.train_results()
+            return 'done', 200

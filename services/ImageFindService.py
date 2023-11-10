@@ -32,10 +32,10 @@ def handle_request_(request):
 
 def get_result_of_prediction(data):
     if data is None:
-        return "can't find image"
+        return "Can't find image\n"
     if data == -1:
-        return "found more than one candidate, try again"
-    return "image found in index, " + str(data)
+        return "Found more than one candidate, try again\n"
+    return "Image found in index, " + str(data) + "\n"
 
 
 def get_image_features_(request):

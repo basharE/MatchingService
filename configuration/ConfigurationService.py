@@ -67,3 +67,7 @@ def get_resnet_threshold_from_conf():
 
 def get_number_of_highest_results_from_conf():
     return int(get_configuration_value('training.number_of_highest_results'))
+
+
+def get_classifiers_collection_name_from_conf():
+    return get_configuration_value('database.classifiers_collection_name')
