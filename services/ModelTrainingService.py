@@ -2,8 +2,8 @@ from datetime import datetime
 import pandas as pd
 
 from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
-    get_database_train_collection_name_from_conf, get_database_new_train_collection_name_from_conf
     get_database_train_collection_name_from_conf, get_database_new_train_collection_name_from_conf, \
+    get_classifiers_collection_name_from_conf
 from data_enriching.TrainDataFrameBuilder import find_best_k_results
 from db.MongoConnect import connect_to_collection
 from deciding_model.ResultTrainer import ResultTrainer
