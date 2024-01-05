@@ -7,7 +7,7 @@
       describes the location.
     - In Enrich API, there is an ability to label existing data, by uploading image to label specific location in
       database.
-    - Fins API, is an API that uses ML trained model, to find the location of uploaded image.
+    - Finds API, is an API that uses ML trained model, to find the location of uploaded image.
     - Train API, is an API to train the ML model upon the data existing in database,
 
 ## Indoor Localization Backend
