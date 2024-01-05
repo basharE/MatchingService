@@ -7,7 +7,7 @@ import cv2
 from scipy.spatial.distance import euclidean
 
 from configuration.ConfigurationService import get_frames_directory_from_conf, get_directory_from_conf, \
-    get_clip_threshold_const_from_conf, get_resnet_threshold_const_from_conf
+    get_clip_threshold_const_from_conf, get_resnet_threshold_const_from_conf, get_number_of_highest_results_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
 from utils.PathUtils import create_path
 from utils.SortingUtils import alphanum_key
@@ -49,6 +49,16 @@ def turn_ones_to_tows(results_matrix, index):
 
 def get_top_images(results_matrix):
     logging.info('Starting get_top_images from total number of images: %s', len(results_matrix))
+
+    # Get a list of tuples containing the index and count of ones for each inner list
+    index_and_count = [(i, sum(inner_list)) for i, inner_list in enumerate(results_matrix)]
+
+    # Sort the list of tuples based on the count of ones
+    sorted_index_and_count = sorted(index_and_count, key=lambda x: x[1], reverse=True)
+
+    # Get the sorted list of indexes
+    sorted_indexes = [index for index, count in sorted_index_and_count]
+
     top_images_with_ones = list()
     top_images_count_ones = list()
 
@@ -57,6 +67,14 @@ def get_top_images(results_matrix):
         top_images_with_ones.append(index_)
         top_images_count_ones.append(counts)
         turn_ones_to_tows(results_matrix, index_)
+
+    for element in sorted_indexes:
+        if element not in top_images_with_ones:
+            top_images_with_ones.append(element)
+
+            # Check if the size of list1 reaches x
+            if len(top_images_with_ones) == get_number_of_highest_results_from_conf():
+                break
     logging.info('Completed processing get_top_images, returns %s images from total of %s', len(top_images_with_ones),
                  len(results_matrix))
     return top_images_with_ones, top_images_count_ones, len(results_matrix)

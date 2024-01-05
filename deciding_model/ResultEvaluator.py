@@ -30,6 +30,8 @@ class ResultEvaluator:
         # Find the maximum value and its index
         max_value = np.max(_avg[0:, 1])
         max_index = np.argmax(_avg[0:, 1])
+        logging.info(f"The Maximum Value is: {max_value}, and the Index is: {max_index}")
+
         # if _class is not None:
         #     collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
         #                                        get_classifiers_collection_name_from_conf())
@@ -57,7 +59,7 @@ class ResultEvaluator:
         # trainer = ResultTrainer()
         # return get_result_from_trainer(trainer, input_data)
 
-        if max_value > 0.87:
+        if max_value > 0.86 :
             return max_index
         else:
             return None

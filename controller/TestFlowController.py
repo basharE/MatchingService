@@ -2,6 +2,7 @@ from flask import request
 
 from configuration.Decorators import log_request_and_response
 from controller.BaseController import BaseController
+from images_selector.Orchestrator import orchestrate
 from services.TestFlowService import handle_single_request, handle_euclidean_request, handle_database_image, \
     handle_path_request
 
@@ -49,3 +50,8 @@ class TestFlowController(BaseController):
         @log_request_and_response
         def test_database_image():
             return handle_database_image(request)
+
+        @self.app.route(f"{self.ENRICH_ROUTE}/orch", methods=["GET"])
+        @log_request_and_response
+        def test_orchestrate():
+            return orchestrate("20231117_152018.mp4", "clip")

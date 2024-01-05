@@ -1,3 +1,6 @@
+import numpy as np
+from flask import jsonify
+
 from configuration.ConfigurationService import get_image_directory_from_conf
 from data_enriching.TrainDataFrameBuilder import find_best_k_results
 from deciding_model.Db_to_df_converter import convert_to_df
@@ -8,6 +11,7 @@ import io
 import base64
 import logging
 from PIL import Image
+import matplotlib.pyplot as plt
 
 
 def handle_request(request):
@@ -22,7 +26,7 @@ def handle_request(request):
 
 def handle_request_(request):
     try:
-        features = get_image_features_(request)
+        features = handle_request_of_optimized_image(request)
         images_similarities = find_similarities(features, None)
         best_k_results = find_best_k_results(images_similarities)
         return convert_to_df(best_k_results)
@@ -57,8 +61,21 @@ def get_image_features(request):
     compressed_image_stream = io.BytesIO(decoded_bytes)
     decompressed_image = Image.open(compressed_image_stream)
 
-    width_, height_ = decompressed_image.size
-    image_size_bytes = len(decompressed_image.tobytes())
+    # Rotate the image
+    rotated_image = decompressed_image.rotate(270)
+
+    # Display the image using matplotlib
+    plt.imshow(np.array(rotated_image))
+    plt.show()
+
+    # Get the rotated image as bytes
+    rotated_image_bytes = rotated_image.tobytes()
+
+    # Read the rotated image into BytesIO
+    rotated_image_stream = io.BytesIO(rotated_image_bytes)
+
+    width_, height_ = rotated_image.size
+    image_size_bytes = len(rotated_image.tobytes())
     decoded_len = len(decoded_bytes)
 
     logging.info(
@@ -68,5 +85,25 @@ def get_image_features(request):
     logging.info(f"Image Width, from response: {width}, current: {width_}")
     logging.info(f"Image Height, from response: {height}, current: {height_}")
 
-    image_wrapper = ImageWrapper(decoded_bytes, filename="input_image.jpg")
+    image_wrapper = ImageWrapper(rotated_image, filename="input_image.jpg")
     return extract_features(image_wrapper, get_image_directory_from_conf())
+
+
+def handle_request_of_optimized_image(request):
+    try:
+        # Get the image file from the request
+        image_data = request.files['image'].read()
+
+        # Convert the image data to a PIL Image
+        image = Image.open(io.BytesIO(image_data))
+        rotated_image = image.rotate(270)
+
+        plt.imshow(np.array(rotated_image))
+        plt.show()
+
+        # return jsonify({'message': 'Image received successfully.'}), 200
+        image_wrapper = ImageWrapper(rotated_image, filename="input_image.jpg")
+        return extract_features(image_wrapper, get_image_directory_from_conf())
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

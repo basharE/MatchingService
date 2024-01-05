@@ -41,6 +41,24 @@ class ImageFindController(BaseController):
                 response = get_result_of_prediction(trainer.predict_all(db_images_data_frame, None))
 
                 logging.info("***** Finding Image Finished *****")
+                logging.info(response)
+                return response
+
+        @self.app.route(f"{self.ENRICH_ROUTE}/imageoptimized", methods=["POST"])
+        def find_optimized_image():
+            logging.info("***** Starting Finding Image *****")
+
+            trainer = ClassifierTrainer()
+            best_classifier = trainer.best_classifier
+            if best_classifier is None:
+                # Raise a 404 Not Found exception
+                abort(404, description="Best classifier not found, Please Train Data Before!")
+            else:
+                db_images_data_frame = ImageFindService.handle_request_(request)
+                response = get_result_of_prediction(trainer.predict_all(db_images_data_frame, None))
+
+                logging.info("***** Finding Image Finished *****")
+                logging.info(response)
                 return response
 
         @self.app.route(f"{self.ENRICH_ROUTE}/image/train", methods=["POST"])
