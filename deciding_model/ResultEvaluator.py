@@ -59,7 +59,7 @@ class ResultEvaluator:
         # trainer = ResultTrainer()
         # return get_result_from_trainer(trainer, input_data)
 
-        if max_value > 0.86 :
+        if max_value > 0.86:
             return max_index
         else:
             return None
