@@ -11,12 +11,12 @@ def get_from_mongo_to_dataframe(new):
     df = pd.DataFrame()
     if new:
         for doc in collection.find():
-            for v in doc.values():
-                if isinstance(v, dict):
+            for v in doc.items():
+                if isinstance(v[1], dict):
                     # for items in v:
-                    if is_dict_with_size(v, 17):
-                        data = [list(v.values())]
-                        columns = get_unified_header(list(v))
+                    if is_dict_with_size(v[1], 17):
+                        data = [[v[0]] + list(v[1].values())]
+                        columns = get_unified_header(list(v[1]))
                         if df.empty:
                             df = pd.DataFrame(data, columns=columns)
                         else:
@@ -25,10 +25,10 @@ def get_from_mongo_to_dataframe(new):
                             df.reset_index()
     else:
         for doc in collection.find({}, {"_id": 0}):
-            for v in doc.values():
-                if is_dict_with_size(v, 12):
-                    data = [list(v.values())]
-                    columns = get_unified_header(list(v))
+            for v in doc.items():
+                if is_dict_with_size(v[1], 12):
+                    data = [[v[0]] + list(v[1].values())]
+                    columns = get_unified_header(list(v[1]))
                     if df.empty:
                         df = pd.DataFrame(data, columns=columns)
                     else:
@@ -42,10 +42,10 @@ def convert_to_df(data):
     _df = pd.DataFrame()
     k = get_number_of_highest_results_from_conf() * 2 + 5
     if isinstance(data, dict):
-        for items in data.values():
-            if is_dict_with_size(items, k):
-                data = [list(items.values())]
-                columns = get_unified_header(list(items))
+        for items in data.items():
+            if is_dict_with_size(items[1], k):
+                data = [[items[0]] + list(items[1].values())]
+                columns = get_unified_header(list(items[1]))
                 if _df.empty:
                     _df = pd.DataFrame(data, columns=columns)
                 else:
@@ -81,4 +81,5 @@ def get_unified_header(original_list):
             new_item = item
         new_list.append(new_item)
 
-    return new_list
+    id_element = 'id'
+    return [id_element] + new_list

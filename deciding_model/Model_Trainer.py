@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 
 import xgboost as xgb
+from bson import ObjectId
 
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
@@ -16,6 +17,10 @@ from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn import tree, neighbors
 from sklearn.metrics import f1_score
 from sklearn.model_selection import cross_val_score
+
+from configuration.ConfigurationService import get_database_uri_from_conf, get_database_name_from_conf, \
+    get_database_collection_name_from_conf
+from db.MongoConnect import connect_to_collection
 from deciding_model.Db_to_df_converter import get_from_mongo_to_dataframe
 from deciding_model.ResultEvaluator import ResultEvaluator
 
@@ -52,7 +57,7 @@ class ClassifierTrainer(metaclass=SingletonMeta):
         return f"TP: {_TP}, FP: {_FP}, TN: {_TN}, FN: {_FN}"
 
     def predict_all(self, input_df, _class):
-        X = input_df.iloc[:, 1:]
+        X = input_df.iloc[:, 2:]
         scaler = preprocessing.MinMaxScaler()
         X_normalized = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
         summed_probs = np.zeros((X_normalized.shape[0], 2))  # Adjust num_classes accordingly
@@ -65,14 +70,30 @@ class ClassifierTrainer(metaclass=SingletonMeta):
             summed_probs += probs
             logging.info(f"Prediction Result of {clf.__class__.__name__} is {probs}")
         evaluator = ResultEvaluator()
-        return evaluator.evaluate(props_dic, _class)
+        evaluator_res = evaluator.evaluate(props_dic, _class)
+        if evaluator_res != None:
+            id_of_object = input_df.loc[evaluator_res, 'id']
+            document_id = ObjectId(id_of_object)
+
+            collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
+                                               get_database_collection_name_from_conf())
+            document = collection.find_one({"_id": document_id},
+                                           {'_id': 0, 'name': 1})
+
+            if document:
+                # Access the value of the specific field
+                field_value = document.get("name")
+                return field_value
+            else:
+                return None
+        return evaluator_res
 
     def train_best_classifier(self, new):
         # Get dataframe from the database
         data_frame = get_from_mongo_to_dataframe(new)
 
         y = data_frame['class']
-        X = data_frame.iloc[:, 1:]
+        X = data_frame.iloc[:, 2:]
 
         # Normalize data
         scaler = preprocessing.MinMaxScaler()

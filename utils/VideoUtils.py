@@ -11,10 +11,15 @@ from utils.Common import remove_extension
 def extract_frame(vid_cap, sec, count, video_name):
     vid_cap.set(cv2.CAP_PROP_POS_MSEC, sec * 1000)
     has_frames, image = vid_cap.read()
-    image = cv2.rotate(image, cv2.ROTATE_180)
+    image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
     if has_frames:
         filename = os.path.join(get_frames_directory_from_conf(), video_name, f"image{count}.jpg")
         cv2.imwrite(filename, image)  # save frame as JPG file
+
+        # Display the extracted frame
+        # plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+        # plt.title(f"Frame {count}")
+        # plt.show()
     return has_frames
 
 

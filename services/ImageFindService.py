@@ -1,4 +1,3 @@
-import numpy as np
 from flask import jsonify
 
 from configuration.ConfigurationService import get_image_directory_from_conf
@@ -11,7 +10,6 @@ import io
 import base64
 import logging
 from PIL import Image
-import matplotlib.pyplot as plt
 
 
 def handle_request(request):
@@ -39,7 +37,7 @@ def get_result_of_prediction(data):
         return "Can't find image\n"
     if data == -1:
         return "Found more than one candidate, try again\n"
-    return "Image found in index, " + str(data) + "\n"
+    return "Your position is near, " + str(data) + "\n"
 
 
 def get_image_features_(request):
@@ -64,9 +62,9 @@ def get_image_features(request):
     # Rotate the image
     rotated_image = decompressed_image.rotate(270)
 
-    # Display the image using matplotlib
-    plt.imshow(np.array(rotated_image))
-    plt.show()
+    # # Display the image using matplotlib
+    # plt.imshow(np.array(rotated_image))
+    # plt.show()
 
     # Get the rotated image as bytes
     rotated_image_bytes = rotated_image.tobytes()
@@ -96,10 +94,10 @@ def handle_request_of_optimized_image(request):
 
         # Convert the image data to a PIL Image
         image = Image.open(io.BytesIO(image_data))
-        rotated_image = image.rotate(270)
+        rotated_image = image
 
-        plt.imshow(np.array(rotated_image))
-        plt.show()
+        # plt.imshow(np.array(rotated_image))
+        # plt.show()
 
         # return jsonify({'message': 'Image received successfully.'}), 200
         image_wrapper = ImageWrapper(rotated_image, filename="input_image.jpg")

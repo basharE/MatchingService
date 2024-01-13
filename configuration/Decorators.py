@@ -14,8 +14,6 @@ def log_request_and_response(func):
         response = func(*args, **kwargs)
 
         # Log response information
-        logging.info(f"Responded with status code {response.status_code}")
-
         return response
 
     return wrapper
