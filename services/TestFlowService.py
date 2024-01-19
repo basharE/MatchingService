@@ -92,7 +92,7 @@ def handle(image, image_identifier):
     # Plotting
     plot_line_graph(clip_index_list, clip_similarity_list, resnet_index_list, resnet_similarity_list,
                     (class_clip if len(class_clip) > len(class_resnet) else class_resnet),
-                    "uploads/plot/" + image_identifier + "-graph.png", image_identifier)
+                    "files/plot/" + image_identifier + "-graph.png", image_identifier)
     return ""
 
 
@@ -119,7 +119,7 @@ def handle_database_image(request):
     clip_res = ""
     image = request.files['image']
     # image_name = request.files['image_name']
-    image_name = "uploads/frames_streams/20230719_093800/image39.jpg"
+    image_name = "files/frames_streams/20230719_093800/image39.jpg"
     image_features = extract_features(image, get_image_directory_from_conf())
 
     # Connect to the MongoDB collection

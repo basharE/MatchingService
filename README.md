@@ -46,7 +46,7 @@ Label:
 
 ## Service Architecture
 
-![Screenshot 2023-08-18 at 10.06.14.png](uploads%2Fdesign%2FScreenshot%202023-08-18%20at%2010.06.14.png)
+![Screenshot 2023-08-18 at 10.06.14.png](files%2Fdesign%2FScreenshot%202023-08-18%20at%2010.06.14.png)
 
 ### TODO:
 

@@ -1,4 +1,7 @@
 import logging
+import os
+from datetime import datetime
+
 from flask import Flask
 from waitress import serve
 
@@ -32,9 +35,18 @@ class App:
 
     def configure_logging(self):
         app_config = self.config.get_config().get('log')
+
+        log_directory = app_config.get('log_directory')
+        os.makedirs(log_directory, exist_ok=True)
+
+        # Create a unique log file name with a timestamp
+        log_file_name = f"log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        log_file_path = os.path.join(log_directory, log_file_name)
+
         logging.basicConfig(level=app_config.get('level'),
                             format='%(asctime)s %(levelname)s %(filename)s:%(lineno)d - %(message)s',
-                            datefmt='%Y-%m-%d %H:%M:%S')
+                            datefmt='%Y-%m-%d %H:%M:%S',
+                            handlers=[logging.FileHandler(log_file_path, mode='a')])
 
     def run(self):
         app_config = self.config.get_config().get('waitress')

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import jsonify
 
 from configuration.ConfigurationService import get_image_directory_from_conf
@@ -100,7 +102,12 @@ def handle_request_of_optimized_image(request):
         # plt.show()
 
         # return jsonify({'message': 'Image received successfully.'}), 200
-        image_wrapper = ImageWrapper(rotated_image, filename="input_image.jpg")
+        base_filename = "input_image"
+        current_datetime = datetime.now()
+        timestamp = current_datetime.strftime('%Y%m%d_%H%M%S')
+        file_extension = ".jpg"
+        new_image_file_name = f"{base_filename}_{timestamp}{file_extension}"
+        image_wrapper = ImageWrapper(rotated_image, filename=new_image_file_name)
         return extract_features(image_wrapper, get_image_directory_from_conf())
 
     except Exception as e:
