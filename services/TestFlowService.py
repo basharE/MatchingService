@@ -1,3 +1,4 @@
+import logging
 import os
 from os import listdir
 from os.path import isfile, join
@@ -8,6 +9,7 @@ from scipy.spatial.distance import euclidean
 
 from configuration.ConfigurationService import get_image_directory_from_conf, get_database_uri_from_conf, \
     get_database_name_from_conf, get_database_images_collection_name_from_conf
+from data_enriching.FeaturesServices import calculate_similarity
 from db.MongoConnect import connect_to_collection
 from image_find.FrameHandler import extract_features, find_similarities
 from utils.PlotUtil import plot_line_graph
@@ -101,6 +103,8 @@ def handle_euclidean_request(request):
     image2 = request.files['image2']
     image1_features = extract_features(image1, get_image_directory_from_conf())
     image2_features = extract_features(image2, get_image_directory_from_conf())
+    image_path1 = os.path.join(get_image_directory_from_conf(), image1.filename)
+    image_path2 = os.path.join(get_image_directory_from_conf(), image2.filename)
 
     image1_resnet_features = image1_features.get("resnet")
     image1_clip_features = image1_features.get("clip")
@@ -108,9 +112,15 @@ def handle_euclidean_request(request):
     image2_resnet_features = image2_features.get("resnet")
     image2_clip_features = image2_features.get("clip")
 
-    data = {"message": 'resnet_distance: ' + str(
-        euclidean(image1_resnet_features[0], image2_resnet_features[0])) + ', clip_distance: ' + str(
-        euclidean(image1_clip_features[0], image2_clip_features[0]))}
+    res_orb = calculate_similarity(image_path1, image_path2)
+
+    data = {
+        "message": 'image1: ' + str(image1.filename) + ', image2: ' + str(image2.filename) + 'resnet_distance: ' + str(
+            euclidean(image1_resnet_features[0], image2_resnet_features[0])) + ', clip_distance: ' + str(
+            euclidean(image1_clip_features[0], image2_clip_features[0])) +
+                   ', orb_distance: ' + str(res_orb)}
+    logging.info(data)
+
     return jsonify(data)
 
 

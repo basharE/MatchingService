@@ -1,4 +1,5 @@
 import tensorflow as tf
+import torch
 from transformers import CLIPProcessor, CLIPModel
 import time
 from tqdm import tqdm
@@ -12,13 +13,11 @@ import logging
 
 def get_features_clip(processor_, device_, model_, tmp_img):
     image1 = processor_(text=None, images=tmp_img, return_tensors="pt")[
-        "pixel_values"
-    ].to(device_)
-    tmp_img.close()
-    e = model_.get_image_features(image1)
-    e = e.squeeze(0)
-    e = e.cpu().detach().numpy()
-    return e
+        "pixel_values"].to(device_)
+    with torch.no_grad():
+        features = model_.get_image_features(image1).squeeze(0).cpu().numpy()
+
+    return features
 
 
 class SingletonMeta(type):
@@ -74,7 +73,7 @@ class FeatureExtractor(metaclass=SingletonMeta):
     def run_clip_model(self, image_path):
         device = "cpu"
         feature_list = []
-        image1 = utils.load_img(image_path, target_size=(224, 224))
+        image1 = utils.load_img(image_path)
         e = get_features_clip(self.processor, device, self.clip_model, image1)
         feature_list.append(e)
 

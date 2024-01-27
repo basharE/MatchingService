@@ -107,14 +107,15 @@ class ClassifierTrainer(metaclass=SingletonMeta):
 
         # Define classifiers
         classifiers = [
+            LogisticRegression(random_state=70),
+            MultinomialNB(),
             tree.DecisionTreeClassifier(),
+
             RandomForestClassifier(),
             MLPClassifier(solver='lbfgs', hidden_layer_sizes=(20,), max_iter=1000),
             neighbors.KNeighborsClassifier(n_neighbors=3, weights="uniform"),
             AdaBoostClassifier(n_estimators=70, random_state=50),
             xgb.XGBClassifier(n_estimators=70, random_state=50),
-            LogisticRegression(random_state=70),
-            MultinomialNB(),
             GaussianNB()
         ]
 
