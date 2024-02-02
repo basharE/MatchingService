@@ -39,8 +39,9 @@ def get_from_mongo_to_dataframe(new):
 
 
 def convert_to_df(data):
+    models = ["clip"]
     _df = pd.DataFrame()
-    k = get_number_of_highest_results_from_conf() * 2 + 5
+    k = (get_number_of_highest_results_from_conf() + 2) * len(models) + 1 + 1
     if isinstance(data, dict):
         for items in data.items():
             if is_dict_with_size(items[1], k):
@@ -63,6 +64,7 @@ def get_unified_header(original_list):
     # Initialize counters for clip and resnet
     clip_count = 1
     resnet_count = 1
+    orb_count = 1
 
     # Apply replacements
     new_list = []
@@ -75,6 +77,9 @@ def get_unified_header(original_list):
             elif "resnet" in item:
                 new_item = f"resnet{resnet_count}"
                 resnet_count += 1
+            elif "orb" in item:
+                new_item = f"orb{orb_count}"
+                orb_count += 1
             else:
                 new_item = item
         else:

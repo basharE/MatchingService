@@ -26,10 +26,11 @@ def handle_request(request):
 
 def handle_request_(request):
     try:
+        logging.info(f"Received request for image: {request.files['image'].filename}")
         features = handle_request_of_optimized_image(request)
         images_similarities = find_similarities(features, None)
         best_k_results = find_best_k_results(images_similarities)
-        return convert_to_df(best_k_results)
+        return convert_to_df(best_k_results), features.get("image_path")
     except Exception as e:
         logging.error(f"Error processing request: {str(e)}")
 

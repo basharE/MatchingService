@@ -10,6 +10,8 @@ from keras.applications.resnet import preprocess_input
 from keras import utils
 import logging
 
+from data_enriching.FeaturesServices import initialize_orb_detector, extract_descriptors_
+
 
 def get_features_clip(processor_, device_, model_, tmp_img):
     image1 = processor_(text=None, images=tmp_img, return_tensors="pt")[
@@ -33,8 +35,9 @@ class FeatureExtractor(metaclass=SingletonMeta):
 
     def __init__(self):
         self.processor = None
-        self.resnet_model = self.get_pretrained_model("resnet")
+        # self.resnet_model = self.get_pretrained_model("resnet")
         self.clip_model = self.get_pretrained_model("clip")
+        # self.orb_model = self.get_pretrained_model("orb")
 
     def get_pretrained_model(self, name):
         if name == "resnet":
@@ -42,7 +45,7 @@ class FeatureExtractor(metaclass=SingletonMeta):
             model = tf.keras.applications.ResNet152V2(
                 weights='imagenet',
                 include_top=False,
-                input_shape=(224, 224, 3),
+                # input_shape=(224, 224, 3),
                 classes=1000,
                 pooling="max",
                 classifier_activation="softmax",
@@ -50,17 +53,21 @@ class FeatureExtractor(metaclass=SingletonMeta):
         elif name == "clip":
             device = "cpu"
             # model_id = "openai/clip-vit-large-patch14"
-            model_id = "openai/clip-vit-base-patch32"
+            model_id = "openai/clip-vit-large-patch14"
             processor = CLIPProcessor.from_pretrained(model_id)
             model = CLIPModel.from_pretrained(model_id).to(device)
             self.processor = processor
+
+        elif name == "orb":
+            # Initialize feature detector
+            model = initialize_orb_detector()
         else:
             print("Specified model not available")
         return model
 
     def run_resnet_model(self, image_path):
         model = self.resnet_model
-        image1 = utils.load_img(image_path, target_size=(224, 224))
+        image1 = utils.load_img(image_path)
 
         transformed_image = asarray(image1)
         transformed_image = np.expand_dims(transformed_image, axis=0)
@@ -79,11 +86,16 @@ class FeatureExtractor(metaclass=SingletonMeta):
 
         return np.array(feature_list)
 
+    def run_orb_model(self, image_path):
+        return extract_descriptors_(image_path, self.orb_model)
+
     def run_model_(self, model_to_run, image_path):
         if model_to_run == "resnet":
             return self.run_resnet_model(image_path)
         elif model_to_run == "clip":
             return self.run_clip_model(image_path)
+        elif model_to_run == "orb":
+            return self.run_orb_model(image_path)
         else:
             print("Specified model not available")
             return []
@@ -97,11 +109,13 @@ class FeatureExtractor(metaclass=SingletonMeta):
         # It is usually a good practice to constrain the range of values
         # a feature might take to ensure one or a few dimensions do not
         # dominate the overall feature space.
-        for i, features in tqdm(enumerate(feature_list)):
-            feature_list[i] = features / LA.norm(features)
+        if model_to_run != "orb":
+            for i, features in tqdm(enumerate(feature_list)):
+                feature_list[i] = features / LA.norm(features)
 
-        # Convert list to numpy array
-        feature_list = np.array(feature_list)
+            # Convert list to numpy array
+            feature_list = np.array(feature_list)
+
         logging.info("Type = %s", type(feature_list))
         logging.info("Shape of feature_list = %s", feature_list.shape)
         logging.info("Time taken in sec = %s", end_time - start_time)

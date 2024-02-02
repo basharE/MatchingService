@@ -49,6 +49,10 @@ def get_clip_threshold_const_from_conf():
     return get_configuration_value('video.clip_threshold_const')
 
 
+def get_orb_threshold_const_from_conf():
+    return get_configuration_value('video.orb_threshold_const')
+
+
 def get_resnet_threshold_const_from_conf():
     return get_configuration_value('video.resnet_threshold_const')
 
@@ -63,6 +67,10 @@ def get_clip_threshold_from_conf():
 
 def get_resnet_threshold_from_conf():
     return float(get_configuration_value('training.resnet_threshold'))
+
+
+def get_orb_threshold_from_conf():
+    return float(get_configuration_value('training.orb_threshold'))
 
 
 def get_number_of_highest_results_from_conf():

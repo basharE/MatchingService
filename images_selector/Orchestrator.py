@@ -7,8 +7,10 @@ import cv2
 from scipy.spatial.distance import euclidean
 
 from configuration.ConfigurationService import get_frames_directory_from_conf, get_directory_from_conf, \
-    get_clip_threshold_const_from_conf, get_resnet_threshold_const_from_conf, get_number_of_highest_results_from_conf
+    get_clip_threshold_const_from_conf, get_resnet_threshold_const_from_conf, get_number_of_highest_results_from_conf, \
+    get_orb_threshold_const_from_conf
 from data_enriching.FeaturesExtractionService import FeatureExtractor
+from data_enriching.FeaturesServices import get_similarity
 from utils.PathUtils import create_path
 from utils.SortingUtils import alphanum_key
 from utils.VideoUtils import split_images_stream
@@ -107,6 +109,21 @@ def build_comparison_matrix(images_features):
     return matrix
 
 
+def build_comparison_matrix_orb(images_features):
+    logging.info('Starting build_comparison_matrix')
+    matrix = []
+    bf = cv2.BFMatcher()
+    for i in range(len(images_features)):
+        row = []
+        for j in range(len(images_features)):
+            matches = bf.knnMatch(images_features[i], images_features[j], k=2)
+            row.append(get_similarity(images_features[i], images_features[j], matches))
+        matrix.append(row)
+    logging.info('Completed processing build_comparison_matrix with matrix size of: %s X %s', len(images_features),
+                 len(images_features))
+    return matrix
+
+
 def convert_matrix_to_ones_zeros(results_matrix, threshold):
     logging.info('Starting convert_matrix_to_ones_zeros')
     for i in range(len(results_matrix)):
@@ -136,11 +153,17 @@ def orchestrate(video_name, model):
     feature_extractor = FeatureExtractor()
     features_list, images_names = extract_features(get_frames_directory_from_conf() + remove_extension(video_name),
                                                    feature_extractor, model)
-    results_matrix = build_comparison_matrix(features_list)
+
     if model == "resnet":
+        results_matrix = build_comparison_matrix(features_list)
         convert_matrix_to_ones_zeros(results_matrix, get_resnet_threshold_const_from_conf())
-    else:
+    elif model == "clip":
+        results_matrix = build_comparison_matrix(features_list)
         convert_matrix_to_ones_zeros(results_matrix, get_clip_threshold_const_from_conf())
+    else:
+        results_matrix = build_comparison_matrix_orb(features_list)
+        convert_matrix_to_ones_zeros(results_matrix, get_orb_threshold_const_from_conf())
+
     top_images, top_images_counts, frames_number = get_top_images(results_matrix)
     # Combine the data into a list of lists
     combined_data = list(zip(top_images, top_images_counts))

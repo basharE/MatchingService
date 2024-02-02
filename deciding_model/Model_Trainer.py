@@ -71,7 +71,7 @@ class ClassifierTrainer(metaclass=SingletonMeta):
             logging.info(f"Prediction Result of {clf.__class__.__name__} is {probs}")
         evaluator = ResultEvaluator()
         evaluator_res = evaluator.evaluate(props_dic, _class)
-        if evaluator_res != None:
+        if evaluator_res is not None:
             id_of_object = input_df.loc[evaluator_res, 'id']
             document_id = ObjectId(id_of_object)
 

@@ -22,7 +22,27 @@ def get_result_from_trainer(trainer, input_data):
 
 
 class ResultEvaluator:
-    def evaluate(self, input_data, _class):
+    def evaluate(self, input_data, image_path):
+        clip_min_row = input_data.loc[input_data['clip1'].idxmin()]
+        clip_min_id = clip_min_row['id']
+        clip1_min_value = clip_min_row['clip1']
+        clip_min_name = clip_min_row['name']
+
+        # orb_min_row = input_data.loc[input_data['orb1'].idxmin()]
+        # orb_min_id = orb_min_row['id']
+        # orb1_min_value = orb_min_row['orb1']
+
+        logging.info("Clip min: %s", clip1_min_value)
+        logging.info("Clip min id: %s", clip_min_id)
+
+        # logging.info("Orb min: %s", orb1_min_value)
+        # logging.info("Orb min id: %s", orb_min_id)
+
+        # feature_extractor = FeatureExtractor()
+        # resnet_features = feature_extractor.run_model('resnet', image_path)
+        # resnet_similarities = find_similarities(dict(resnet=resnet_features), None)
+        return clip_min_name
+
         candidates = self.get_candidates(input_data)
         _sum = self.get_sum(input_data)
         _avg = _sum / len(input_data)

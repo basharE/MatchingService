@@ -3,6 +3,7 @@ import logging
 from flask import request, abort
 from controller.BaseController import BaseController
 from deciding_model.Model_Trainer import ClassifierTrainer
+from deciding_model.ResultEvaluator import ResultEvaluator
 from services import ImageFindService
 from services.ImageFindService import get_result_of_prediction
 
@@ -33,12 +34,15 @@ class ImageFindController(BaseController):
 
             trainer = ClassifierTrainer()
             best_classifier = trainer.best_classifier
-            if best_classifier is None:
+            if best_classifier is not None:
                 # Raise a 404 Not Found exception
                 abort(404, description="Best classifier not found, Please Train Data Before!")
             else:
-                db_images_data_frame = ImageFindService.handle_request_(request)
-                response = get_result_of_prediction(trainer.predict_all(db_images_data_frame, None))
+                db_images_data_frame, image_path = ImageFindService.handle_request_(request)
+
+                evaluator = ResultEvaluator()
+                evaluator_res = evaluator.evaluate(db_images_data_frame, image_path)
+                response = get_result_of_prediction(evaluator_res)
 
                 logging.info("***** Finding Image Finished *****")
                 logging.info(response)
@@ -50,12 +54,15 @@ class ImageFindController(BaseController):
 
             trainer = ClassifierTrainer()
             best_classifier = trainer.best_classifier
-            if best_classifier is None:
+            if best_classifier is not None:
                 # Raise a 404 Not Found exception
                 abort(404, description="Best classifier not found, Please Train Data Before!")
             else:
-                db_images_data_frame = ImageFindService.handle_request_(request)
-                response = get_result_of_prediction(trainer.predict_all(db_images_data_frame, None))
+                db_images_data_frame, image_path = ImageFindService.handle_request_(request)
+
+                evaluator = ResultEvaluator()
+                evaluator_res = evaluator.evaluate(db_images_data_frame, image_path)
+                response = get_result_of_prediction(evaluator_res)
 
                 logging.info("***** Finding Image Finished *****")
                 logging.info(response)

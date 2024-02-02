@@ -17,7 +17,7 @@ from deciding_model.Model_Trainer import ClassifierTrainer
 def train_before_starting():
     logging.info("***** Starting Train New Training Model *****")
     trainer_ = ClassifierTrainer()
-    trainer_.train_best_classifier(True)
+    # trainer_.train_best_classifier(True)
     logging.info("***** Train New Training Model Finished *****")
 
 
