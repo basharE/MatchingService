@@ -11,6 +11,8 @@ from data_enriching.FeaturesExtractionService import FeatureExtractor
 from db.MongoCustomQueries import save_as_train_data
 import re
 
+from db.MongoDBDeserializer import MongoDBDeserializer
+
 
 def extract_features(image, app_configs):
     feature_extractor = FeatureExtractor()
@@ -84,14 +86,16 @@ def calculate_distance(doc, image_features, class_of_image, x):
 
 
 def find_similarities(image_features, class_of_image):
-    # Connect to the MongoDB collection
-    collection = connect_to_collection(get_database_uri_from_conf(), get_database_name_from_conf(),
-                                       get_database_images_collection_name_from_conf())
+    mongo_deserializer = MongoDBDeserializer(get_database_uri_from_conf(), get_database_name_from_conf(),
+                                             get_database_images_collection_name_from_conf())
+
+    deserialized_data = mongo_deserializer.get_deserialized_data()
+
     # Dictionary to store image comparisons
     images_comparison = {}
     x = get_number_of_highest_results_from_conf()
     # Iterate over documents in the collection
-    for doc in collection.find():
+    for doc in deserialized_data:
         image_id = str(doc.get("_id"))
         distance = calculate_distance(doc, image_features, class_of_image == image_id, x)
         images_comparison[image_id] = distance

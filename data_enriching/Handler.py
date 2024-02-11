@@ -11,6 +11,7 @@ from db.MongoConnect import connect_to_collection
 import logging
 
 from db.MongoCustomQueries import insert_one_, save_as_new_train_data
+from db.MongoDBDeserializer import MongoDBDeserializer
 from image_find.FrameHandler import extract_features, find_similarities, save_as_train_data
 from images_selector.Orchestrator import orchestrate
 from utils.PathUtils import create_path
@@ -71,6 +72,11 @@ def handle_video_request(request):
             logging.warning(f"Error deleting {get_directory_from_conf() + video_name_without_ext}: {e}")
         os.rmdir(get_frames_directory_from_conf() + video_name_without_ext)
         save_to_db(images_dto)
+
+        mongo_deserializer = MongoDBDeserializer(get_database_uri_from_conf(), get_database_name_from_conf(),
+                                                 get_database_collection_name_from_conf())
+        mongo_deserializer.update_deserialized_data()
+
         return saved_images_string(chosen_images)
     except Exception as e:
         logging.error('Handle video request: ' + str(e))
