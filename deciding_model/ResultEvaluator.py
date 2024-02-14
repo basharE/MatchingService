@@ -41,7 +41,10 @@ class ResultEvaluator:
         # feature_extractor = FeatureExtractor()
         # resnet_features = feature_extractor.run_model('resnet', image_path)
         # resnet_similarities = find_similarities(dict(resnet=resnet_features), None)
-        return clip_min_name
+        if clip1_min_value < 0.5:
+            return clip_min_name
+        else:
+            return None
 
         candidates = self.get_candidates(input_data)
         _sum = self.get_sum(input_data)
