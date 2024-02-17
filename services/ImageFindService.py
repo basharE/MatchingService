@@ -37,9 +37,9 @@ def handle_request_(request):
 
 def get_result_of_prediction(data):
     if data is None:
-        return "Can't find you position\nPlease try again"
+        return ""
     if data == -1:
-        return "Found more than one candidate, try again\n"
+        return ""
     return "Your position is near, " + str(data) + "\n"
 
 
