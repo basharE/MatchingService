@@ -101,6 +101,8 @@ def find_similarities(image_features, class_of_image):
         images_comparison[image_id] = distance
         image_name = str(doc.get("name"))
         distance["name"] = image_name
+        image_description = str(doc.get("description"))
+        distance["description"] = image_description
 
     return images_comparison
 

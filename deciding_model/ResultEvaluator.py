@@ -27,6 +27,7 @@ class ResultEvaluator:
         clip_min_id = clip_min_row['id']
         clip1_min_value = clip_min_row['clip1']
         clip_min_name = clip_min_row['name']
+        clip_min_des = clip_min_row['description']
 
         # orb_min_row = input_data.loc[input_data['orb1'].idxmin()]
         # orb_min_id = orb_min_row['id']
@@ -42,7 +43,7 @@ class ResultEvaluator:
         # resnet_features = feature_extractor.run_model('resnet', image_path)
         # resnet_similarities = find_similarities(dict(resnet=resnet_features), None)
         if clip1_min_value < 0.5:
-            return clip_min_name
+            return {'name': clip_min_name, 'description': clip_min_des}
         else:
             return None
 

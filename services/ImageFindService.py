@@ -37,10 +37,10 @@ def handle_request_(request):
 
 def get_result_of_prediction(data):
     if data is None:
-        return ""
+        return jsonify(""), 200
     if data == -1:
-        return ""
-    return "Your position is near, " + str(data) + "\n"
+        return jsonify(""), 200
+    return jsonify(data), 200
 
 
 def get_image_features_(request):

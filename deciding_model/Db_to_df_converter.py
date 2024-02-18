@@ -41,7 +41,7 @@ def get_from_mongo_to_dataframe(new):
 def convert_to_df(data):
     models = ["clip"]
     _df = pd.DataFrame()
-    k = (get_number_of_highest_results_from_conf() + 2) * len(models) + 1 + 1
+    k = (get_number_of_highest_results_from_conf() + 2) * len(models) + 3
     if isinstance(data, dict):
         for items in data.items():
             if is_dict_with_size(items[1], k):

@@ -81,13 +81,15 @@ def find_best_k_results(similarities):
         average_of_models_runs = get_average(types, item_value)
         minimum = get_min_result(item_value)
         artifact_name = {'name': item_value["name"]}
+        artifact_description = {'description': item_value["description"]}
+
         best_k_results.update(percent_of_types)
         # concatenated_dict = dict(
         #     ChainMap(best_k_results, percent_of_types, get_zone(item_value['zone']), average_of_models_runs,
         #              minimum))
         concatenated_dict = dict(
             ChainMap(best_k_results, percent_of_types, average_of_models_runs,
-                     minimum, artifact_name))
+                     minimum, artifact_name, artifact_description))
         similarities_as_data_frame[item_key] = concatenated_dict
 
     return similarities_as_data_frame
