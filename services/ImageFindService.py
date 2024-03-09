@@ -37,9 +37,9 @@ def handle_request_(request):
 
 def get_result_of_prediction(data):
     if data is None:
-        return jsonify(""), 200
+        return jsonify(""), 404
     if data == -1:
-        return jsonify(""), 200
+        return jsonify(""), 404
     return jsonify(data), 200
 
 

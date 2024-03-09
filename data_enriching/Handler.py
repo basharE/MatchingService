@@ -48,22 +48,6 @@ def handle_video_request(request):
         images_dto['clip_representative_images'] = table
         images_dto['frames_number_clip'] = total_number_of_frames
 
-        # top_images, images_paths, video_name_without_ext, total_number_of_frames, table = orchestrate(video_name,
-        #                                                                                               "orb")
-        # chosen_images = [images_paths[index] for index in top_images]
-        # images_dto.update(run_orb(request, chosen_images))
-        # images_dto['orb_representative_images_number'] = len(top_images)
-        # images_dto['orb_representative_images'] = table
-        # images_dto['frames_number_orb'] = total_number_of_frames
-
-        # top_images, images_paths, video_name_without_ext, total_number_of_frames, table = orchestrate(video_name,
-        #                                                                                               "resnet")
-        # chosen_images = [images_paths[index] for index in top_images]
-        # images_dto.update(run_resnet(request, chosen_images))
-        # images_dto['resnet_representative_images_number'] = len(top_images)
-        # images_dto['resnet_representative_images'] = table
-        # images_dto['frames_number_resnet'] = total_number_of_frames
-
         images_dto['video_name'] = video_name_without_ext
         delete_saved_images(images_paths)
         try:

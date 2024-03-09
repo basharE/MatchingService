@@ -3,7 +3,7 @@ import logging
 from flask import request, abort
 from controller.BaseController import BaseController
 from deciding_model.Model_Trainer import ClassifierTrainer
-from deciding_model.ResultEvaluator import ResultEvaluator
+from deciding_model.ResultEvaluator import evaluate
 from services import ImageFindService
 from services.ImageFindService import get_result_of_prediction
 
@@ -40,8 +40,7 @@ class ImageFindController(BaseController):
             else:
                 db_images_data_frame, image_path = ImageFindService.handle_request_(request)
 
-                evaluator = ResultEvaluator()
-                evaluator_res = evaluator.evaluate(db_images_data_frame, image_path)
+                evaluator_res = evaluate(db_images_data_frame, image_path)
                 response = get_result_of_prediction(evaluator_res)
 
                 logging.info("***** Finding Image Finished *****")
@@ -60,8 +59,7 @@ class ImageFindController(BaseController):
             else:
                 db_images_data_frame, image_path = ImageFindService.handle_request_(request)
 
-                evaluator = ResultEvaluator()
-                evaluator_res = evaluator.evaluate(db_images_data_frame, image_path)
+                evaluator_res = evaluate(db_images_data_frame, image_path)
                 response = get_result_of_prediction(evaluator_res)
 
                 logging.info("***** Finding Image Finished *****")

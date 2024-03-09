@@ -22,7 +22,7 @@ from configuration.ConfigurationService import get_database_uri_from_conf, get_d
     get_database_collection_name_from_conf
 from db.MongoConnect import connect_to_collection
 from deciding_model.Db_to_df_converter import get_from_mongo_to_dataframe
-from deciding_model.ResultEvaluator import ResultEvaluator
+from deciding_model.ResultEvaluator import evaluate
 
 
 class SingletonMeta(type):
@@ -69,8 +69,7 @@ class ClassifierTrainer(metaclass=SingletonMeta):
             props_dic[result] = probs
             summed_probs += probs
             logging.info(f"Prediction Result of {clf.__class__.__name__} is {probs}")
-        evaluator = ResultEvaluator()
-        evaluator_res = evaluator.evaluate(props_dic, _class)
+        evaluator_res = evaluate(props_dic, _class)
         if evaluator_res is not None:
             id_of_object = input_df.loc[evaluator_res, 'id']
             document_id = ObjectId(id_of_object)
